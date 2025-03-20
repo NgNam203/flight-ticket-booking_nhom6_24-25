@@ -1,7 +1,6 @@
 # **Hệ Thống Đặt Vé Máy Bay**
 
-Mẫu giao diện tham khảo: 
-https://vemaybay.vn/vi?utm_source=accesstrade&aff_sid=dey63jqfhM5GticAZUjALbMYTsUFkpstWO3aZO1742192464&gad_source=1&gclid=Cj0KCQjw1um-BhDtARIsABjU5x7X-WqFe4mLNGIIEH2Cv1_819JRhsZmX_BzSCUL9fQnoVv6_5-fFCIaAjlNEALw_wcB
+[Mẫu giao diện tham khảo](https://vemaybay.vn/vi)
 
 ## **Cấu Trúc Dự Án**
 
