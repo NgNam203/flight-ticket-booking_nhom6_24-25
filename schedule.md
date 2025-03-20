@@ -5,3 +5,5 @@
 [Khảo sát hiện trạng hệ thống](https://docs.google.com/document/d/1nLY5MxklGHrSLwOOEd3isXaFQuYc7YMMPR_Dcni4_1c/edit?usp=sharing)
 
 [Quy trình nghiệp vụ](https://docs.google.com/document/d/1Eyn4i0AyJ0hGpGVzFmowTrszB8DpF4KLvUSm0ROQO7A/edit?tab=t.0)
+
+[Link drive](https://docs.google.com/document/d/1-urwO7u0hJ4g2TQ4_0TrXgHRqLx2PCZ7zEavvi6O81k/edit?usp=sharing)
