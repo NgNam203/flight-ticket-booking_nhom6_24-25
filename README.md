@@ -111,15 +111,4 @@ npm start
 
 ---
 
-## **Hướng Dẫn Đóng Góp**
 
-- Tuân thủ cấu trúc thư mục.
-- Sử dụng quy tắc đặt tên rõ ràng.
-- Viết code sạch và có thể tái sử dụng.
-- Ghi chép API routes và các chức năng quan trọng.
-
----
-
-## **Giấy Phép**
-
-Dự án này là mã nguồn mở và có thể sử dụng miễn phí. Bạn có thể tùy chỉnh và mở rộng theo nhu cầu.
