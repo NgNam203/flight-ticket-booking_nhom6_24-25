@@ -1,0 +1,26 @@
+.home-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem 2rem;
+	background-color: white;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+	font-weight: bold;
+	font-size: 1.4rem;
+	color: #f90;
+}
+
+.user-icon {
+	color: #444;
+}
+
+.hero-banner {
+	text-align: center;
+	padding: 2rem;
+	background: url("../images/p1.jpg") no-repeat center;
+	background-size: cover;
+	color: #fff;
+}

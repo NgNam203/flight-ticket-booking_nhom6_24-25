@@ -1,0 +1,27 @@
+/* src/assets/css/header.css */
+.home-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem 2rem;
+	background-color: white;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+	position: sticky;
+	top: 0;
+	z-index: 10;
+}
+
+.logo {
+	font-weight: bold;
+	font-size: 1.4rem;
+	color: #f90;
+}
+
+.hotline {
+	color: #444;
+	font-size: 0.95rem;
+}
+
+.user-icon {
+	color: #444;
+}
