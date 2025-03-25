@@ -8,4 +8,4 @@
 
 [CSDL](https://docs.google.com/document/d/1-urwO7u0hJ4g2TQ4_0TrXgHRqLx2PCZ7zEavvi6O81k/edit?usp=sharing)
 
-[Link drive]([https://docs.google.com/document/d/1-urwO7u0hJ4g2TQ4_0TrXgHRqLx2PCZ7zEavvi6O81k/edit?usp=sharing](https://drive.google.com/drive/folders/1kdxgwSlXQnwdlNFpQHxehtrfIh-KCB7K?usp=sharing)
+[Link drive](https://docs.google.com/document/d/1-urwO7u0hJ4g2TQ4_0TrXgHRqLx2PCZ7zEavvi6O81k/edit?usp=sharing](https://drive.google.com/drive/folders/1kdxgwSlXQnwdlNFpQHxehtrfIh-KCB7K?usp=sharing)
