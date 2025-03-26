@@ -4,7 +4,7 @@ const morgan = require("morgan");
 const cors = require("cors");
 const helmet = require("helmet");
 const dotenv = require("dotenv");
-const routes = require("./routes"); // Import toàn bộ routes từ folder routes
+const routes = require("./routes/index"); // Import toàn bộ routes từ folder routes
 
 const app = express();
 

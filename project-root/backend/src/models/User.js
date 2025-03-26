@@ -19,12 +19,9 @@ const userSchema = new mongoose.Schema(
 		},
 
 		// Thông tin cá nhân
-		gender: { type: String, enum: ["Nam", "Nữ", "Khác"], default: "Khác" },
+		gender: { type: String, enum: ["Nam", "Nữ"], default: "Nam" },
 		birthdate: Date,
 		nationality: String,
-		address: String,
-		identity: String, // CMND
-		passport: String,
 	},
 	{ timestamps: true }
 );

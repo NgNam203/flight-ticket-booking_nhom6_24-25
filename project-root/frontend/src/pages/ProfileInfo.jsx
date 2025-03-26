@@ -115,7 +115,9 @@ const ProfileInfo = () => {
 						<h4>Tài khoản</h4>
 						<ul>
 							<li className="active">Thông tin cá nhân</li>
-							{isAdmin && <li onClick={() => navigate("/admin")}>Admin</li>}
+							{isAdmin && (
+								<li onClick={() => navigate("/admin/flights")}>Admin</li>
+							)}
 							<li onClick={handleLogout}>Đăng xuất</li>
 						</ul>
 					</div>

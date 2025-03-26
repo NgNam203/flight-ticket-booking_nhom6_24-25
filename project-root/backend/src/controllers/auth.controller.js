@@ -120,7 +120,7 @@ const login = async (req, res) => {
 
 		// ✅ Tạo JWT
 		const token = jwt.sign(
-			{ userId: user._id, email: user.email },
+			{ userId: user._id, email: user.email, role: user.role },
 			process.env.JWT_SECRET,
 			{ expiresIn: "2h" }
 		);
@@ -133,6 +133,7 @@ const login = async (req, res) => {
 				fullName: user.fullName,
 				email: user.email,
 				phone: user.phone,
+				role: user.role,
 			},
 		});
 	} catch (err) {
