@@ -11,9 +11,18 @@ const Header = () => {
 		navigate("/profile");
 	};
 
+	const handleLogoClick = () => {
+		navigate("/");
+	};
+
 	return (
 		<header className="home-header">
-			<div className="logo">VEMAYBAY</div>
+			<div
+				className="logo"
+				onClick={handleLogoClick}
+				style={{ cursor: "pointer" }}>
+				VEMAYBAY
+			</div>
 			<div className="hotline">Hotline: 0932 126 988</div>
 			<div className="user-icon" onClick={handleProfileClick}>
 				<FaUserCircle size={28} style={{ cursor: "pointer" }} />

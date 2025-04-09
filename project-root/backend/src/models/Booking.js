@@ -2,10 +2,12 @@ const mongoose = require("mongoose");
 
 const bookingSchema = new mongoose.Schema({
 	user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+	bookingCode: { type: String, unique: true },
 	flights: [
 		{
 			flight: { type: mongoose.Schema.Types.ObjectId, ref: "Flight" },
-			seatClass: String, // VD: "Economy"
+			seatClass: String,
+			seatPrice: Number,
 		},
 	],
 	passengers: [
@@ -21,9 +23,10 @@ const bookingSchema = new mongoose.Schema({
 		phone: String,
 		email: String,
 	},
-	paymentMethod: String, // chuyển khoản, ATM, quốc tế
+	paymentMethod: String,
 	totalAmount: Number,
-	status: { type: String, default: "pending" }, // pending | paid | cancelled
+	status: { type: String, default: "pending" },
+	holdUntil: Date,
 	createdAt: { type: Date, default: Date.now },
 });
 

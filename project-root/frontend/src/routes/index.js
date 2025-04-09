@@ -1,31 +1,75 @@
 import { Routes, Route } from "react-router-dom";
-import Register from "../pages/Register";
-import VerifyEmail from "../pages/VerifyEmail";
-import Login from "../pages/Login";
-import Home from "../pages/Home";
-import ProfileInfo from "../pages/ProfileInfo";
+
+// 🔐 Auth pages
+import LoginPage from "../pages/LoginPage";
+import RegisterPage from "../pages/RegisterPage";
+import VerifyPage from "../pages/VerifyPage";
+
+// 👤 User pages
+import HomePage from "../pages/HomePage";
+import ProfilePage from "../pages/ProfilePage";
+import SearchPage from "../pages/SearchPage";
+import BookingPage from "../pages/BookingPage";
+import PaymentPage from "../pages/PaymentPage";
+import OrderPage from "../pages/OrderPage";
+
+// 🛡️ Route protection
 import PrivateRoute from "./PrivateRoute";
-import FlightList from "../pages/admin/FlightList";
+
+// 🛠️ Admin pages
 import AdminLayout from "../pages/admin/AdminLayout";
 import Dashboard from "../pages/admin/Dashboard";
+import FlightList from "../pages/admin/FlightList";
 import BookingList from "../pages/admin/BookingList";
 import UserList from "../pages/admin/UserList";
 
 const AppRoutes = () => {
 	return (
 		<Routes>
-			<Route path="/register" element={<Register />} />
-			<Route path="/verify-email" element={<VerifyEmail />} />
-			<Route path="/login" element={<Login />} />
-			<Route path="/" element={<Home />} />
+			{/* 🔐 Auth routes */}
+			<Route path="/login" element={<LoginPage />} />
+			<Route path="/register" element={<RegisterPage />} />
+			<Route path="/verify-email" element={<VerifyPage />} />
+
+			{/* 🏠 Public pages */}
+			<Route path="/" element={<HomePage />} />
+			<Route path="/search" element={<SearchPage />} />
+
+			{/* 👤 Protected routes */}
+			<Route
+				path="/booking"
+				element={
+					<PrivateRoute>
+						<BookingPage />
+					</PrivateRoute>
+				}
+			/>
+			<Route
+				path="/payment"
+				element={
+					<PrivateRoute>
+						<PaymentPage />
+					</PrivateRoute>
+				}
+			/>
+			<Route
+				path="/order/:id"
+				element={
+					<PrivateRoute>
+						<OrderPage />
+					</PrivateRoute>
+				}
+			/>
 			<Route
 				path="/profile"
 				element={
 					<PrivateRoute>
-						<ProfileInfo />
+						<ProfilePage />
 					</PrivateRoute>
 				}
 			/>
+
+			{/* 🛠️ Admin routes */}
 			<Route
 				path="/admin"
 				element={
@@ -38,7 +82,6 @@ const AppRoutes = () => {
 				<Route path="bookings" element={<BookingList />} />
 				<Route path="users" element={<UserList />} />
 			</Route>
-			{/* thêm các route khác */}
 		</Routes>
 	);
 };

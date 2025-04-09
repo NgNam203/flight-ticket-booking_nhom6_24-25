@@ -16,11 +16,12 @@ const seatClassSchema = new mongoose.Schema(
 
 const flightSchema = new mongoose.Schema({
 	flightCode: { type: String, required: true, unique: true },
-	airline: String,
+	airline: { type: mongoose.Schema.Types.ObjectId, ref: "Airline" },
 	from: { type: mongoose.Schema.Types.ObjectId, ref: "Airport" },
 	to: { type: mongoose.Schema.Types.ObjectId, ref: "Airport" },
 	departureTime: Date,
 	arrivalTime: Date,
+	aircraft: { type: String },
 	status: { type: String, default: "scheduled" },
 	seatClasses: [seatClassSchema], // dùng schema phụ
 });

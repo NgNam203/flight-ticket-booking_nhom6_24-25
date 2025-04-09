@@ -6,7 +6,7 @@ import "../assets/css/auth.css";
 import { Link } from "react-router-dom";
 import AlertPopup from "../components/AlertPopup";
 
-const Register = () => {
+const RegisterPage = () => {
 	const [formData, setFormData] = useState({
 		fullName: "",
 		email: "",
@@ -153,4 +153,4 @@ const Register = () => {
 	);
 };
 
-export default Register;
+export default RegisterPage;

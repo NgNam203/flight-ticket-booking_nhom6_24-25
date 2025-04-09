@@ -1,9 +1,14 @@
 const Flight = require("../models/Flight");
 const Airport = require("../models/Airport");
+const mongoose = require("mongoose");
+
 // [GET] /api/flights
 const getAllFlights = async (req, res) => {
 	try {
-		const flights = await Flight.find().populate("from to");
+		const flights = await Flight.find()
+			.populate("from", "name code")
+			.populate("to", "name code")
+			.populate("airline", "name code logo");
 		res.json(flights);
 	} catch (err) {
 		// console.error("❌ Lỗi khi lấy chuyến bay:", err);
@@ -62,10 +67,49 @@ const deleteFlight = async (req, res) => {
 	}
 };
 
+// [GET] /api/flights/search?from=...&to=...&departureDate=...&passengers=...
+const searchFlights = async (req, res) => {
+	try {
+		let { from, to, departureDate, passengers = 1 } = req.query;
+
+		if (!from || !to || !departureDate) {
+			return res.status(400).json({ message: "Thiếu thông tin tìm kiếm." });
+		}
+
+		const fromId = new mongoose.Types.ObjectId(from);
+		const toId = new mongoose.Types.ObjectId(to);
+
+		const departureStart = new Date(departureDate);
+		departureStart.setHours(0, 0, 0, 0);
+
+		const departureEnd = new Date(departureStart);
+		departureEnd.setHours(23, 59, 59, 999);
+
+		console.log("🔎 Tìm kiếm chuyến bay từ:", fromId, "đến:", toId);
+		console.log("📅 Trong khoảng:", departureStart, "→", departureEnd);
+
+		const flights = await Flight.find({
+			from: fromId,
+			to: toId,
+			departureTime: { $gte: departureStart, $lt: departureEnd },
+			"seatClasses.availableSeats": { $gte: passengers },
+		})
+			.populate("airline")
+			.populate("from to");
+
+		console.log("✅ Kết quả:", flights.length, "chuyến bay");
+
+		res.json(flights);
+	} catch (err) {
+		console.error("❌ Lỗi:", err);
+		res.status(500).json({ message: "Lỗi khi tìm kiếm chuyến bay." });
+	}
+};
 module.exports = {
 	getAllFlights,
 	createFlight,
 	getFlightById,
 	updateFlight,
 	deleteFlight,
+	searchFlights,
 };

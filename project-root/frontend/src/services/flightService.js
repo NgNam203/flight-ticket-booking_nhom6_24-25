@@ -42,3 +42,21 @@ export const deleteFlight = async (id, token) => {
 	});
 	return res.data;
 };
+
+// Tìm kiếm
+export const searchFlights = async ({
+	from,
+	to,
+	departureDate,
+	passengers = 1,
+}) => {
+	try {
+		const response = await axios.get(`${API_URL}/search`, {
+			params: { from, to, departureDate, passengers },
+		});
+		return response.data;
+	} catch (err) {
+		console.error("❌ Lỗi tìm kiếm chuyến bay:", err);
+		throw err;
+	}
+};

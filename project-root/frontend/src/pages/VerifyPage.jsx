@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { verifyEmail } from "../services/authService";
 
-const VerifyEmail = () => {
+const VerifyPage = () => {
 	const [searchParams] = useSearchParams();
 	const [message, setMessage] = useState("Đang xác thực tài khoản...");
 	const [status, setStatus] = useState("loading");
@@ -54,4 +54,4 @@ const styles = {
 	},
 };
 
-export default VerifyEmail;
+export default VerifyPage;

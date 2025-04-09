@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { getProfile } from "../services/userService";
 import { useNavigate } from "react-router-dom";
-import "./ProfileInfo.css";
+import "./ProfilePage.css";
 import Header from "../components/Header";
 
 const ProfileInfo = () => {

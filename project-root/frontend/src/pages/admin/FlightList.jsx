@@ -6,9 +6,11 @@ import {
 	updateFlight,
 } from "../../services/flightService";
 import { getAllAirports } from "../../services/airportService";
+import { getAllAirlines } from "../../services/airlineService";
 
 const FlightList = () => {
 	const [flights, setFlights] = useState([]);
+	const [airlines, setAirlines] = useState([]);
 	const [airports, setAirports] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [form, setForm] = useState({
@@ -54,10 +56,25 @@ const FlightList = () => {
 			console.error("Lỗi khi tải sân bay:", err);
 		}
 	};
+	const fetchAirlines = async () => {
+		try {
+			const data = await getAllAirlines();
+			setAirlines(data);
+		} catch (err) {
+			console.error("Lỗi khi tải danh sách hãng bay:", err);
+		}
+	};
+	const formatDateForInput = (date) => {
+		const d = new Date(date);
+		const offset = d.getTimezoneOffset();
+		const localDate = new Date(d.getTime() - offset * 60000);
+		return localDate.toISOString().slice(0, 16); // "YYYY-MM-DDTHH:MM"
+	};
 
 	useEffect(() => {
 		fetchFlights();
 		fetchAirports();
+		fetchAirlines();
 	}, []);
 
 	const handleChange = (e) => {
@@ -129,11 +146,11 @@ const FlightList = () => {
 		setEditId(flight._id);
 		setForm({
 			flightCode: flight.flightCode,
-			airline: flight.airline,
+			airline: flight.airline?._id || "",
 			from: flight.from?._id || "",
 			to: flight.to?._id || "",
-			departureTime: flight.departureTime.slice(0, 16),
-			arrivalTime: flight.arrivalTime.slice(0, 16),
+			departureTime: formatDateForInput(flight.departureTime),
+			arrivalTime: formatDateForInput(flight.arrivalTime),
 			status: flight.status,
 			seatClasses: flight.seatClasses || [],
 		});
@@ -166,14 +183,20 @@ const FlightList = () => {
 					onChange={handleChange}
 					required
 				/>
-				<input
-					type="text"
+				<select
 					name="airline"
-					placeholder="Hãng"
-					value={form.airline}
+					value={
+						typeof form.airline === "object" ? form.airline._id : form.airline
+					}
 					onChange={handleChange}
-					required
-				/>
+					required>
+					<option value="">-- Chọn hãng bay --</option>
+					{airlines.map((a) => (
+						<option key={a._id} value={a._id}>
+							{a.name} ({a.code})
+						</option>
+					))}
+				</select>
 				<select name="from" value={form.from} onChange={handleChange} required>
 					<option value="">-- Chọn sân bay đi --</option>
 					{airports.map((a) => (
@@ -288,11 +311,29 @@ const FlightList = () => {
 						{flights.map((f) => (
 							<tr key={f._id}>
 								<td>{f.flightCode}</td>
-								<td>{f.airline}</td>
+								<td>{f.airline?.name}</td>
 								<td>{f.from?.name}</td>
 								<td>{f.to?.name}</td>
-								<td>{new Date(f.departureTime).toLocaleString()}</td>
-								<td>{new Date(f.arrivalTime).toLocaleString()}</td>
+								<td>
+									{new Date(f.departureTime).toLocaleString("vi-VN", {
+										hour: "2-digit",
+										minute: "2-digit",
+										day: "2-digit",
+										month: "2-digit",
+										year: "numeric",
+										hour12: false,
+									})}
+								</td>
+								<td>
+									{new Date(f.arrivalTime).toLocaleString("vi-VN", {
+										hour: "2-digit",
+										minute: "2-digit",
+										day: "2-digit",
+										month: "2-digit",
+										year: "numeric",
+										hour12: false,
+									})}
+								</td>
 								<td>{f.status}</td>
 								<td>
 									<button onClick={() => handleEdit(f)}>Sửa</button>
