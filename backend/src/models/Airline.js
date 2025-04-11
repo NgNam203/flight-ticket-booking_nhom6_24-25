@@ -6,4 +6,4 @@ const airlineSchema = new mongoose.Schema({
 	logo: { type: String }, // URL ảnh logo (tuỳ bạn)
 });
 
-module.export = mongoose.model("Airline", airlineSchema);
+module.exports = mongoose.model("Airline", airlineSchema);

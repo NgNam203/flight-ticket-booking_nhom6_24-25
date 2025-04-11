@@ -26,7 +26,7 @@ const AdminLayout = () => {
 							<NavLink to="airlines">Quản lý hãng hàng không</NavLink>
 						</li>
 						<li>
-							<NavLink to="airports">Quản lý hãng hàng không</NavLink>
+							<NavLink to="airports">Quản lý sân bay</NavLink>
 						</li>
 					</ul>
 				</nav>
