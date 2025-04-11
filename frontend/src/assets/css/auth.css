@@ -1,0 +1,96 @@
+body {
+	margin: 0;
+	padding: 0;
+	font-family: "Segoe UI", sans-serif;
+	/* background: url("../images/preview.jpg") no-repeat center center fixed;	 */
+	background-size: cover;
+}
+
+.auth-wrapper {
+	max-width: 450px;
+	margin: 50px auto;
+	background-color: rgba(255, 255, 255, 0.95);
+	padding: 30px 40px;
+	border-radius: 12px;
+	box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
+}
+
+.auth-wrapper h2 {
+	text-align: center;
+	color: #002766;
+	margin-bottom: 25px;
+}
+
+.auth-wrapper label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 4px;
+}
+
+.auth-wrapper input {
+	width: 100%;
+	padding: 10px;
+	border: 1px solid #ddd;
+	border-radius: 6px;
+	margin-bottom: 8px;
+	font-size: 15px;
+}
+
+.auth-wrapper input:focus {
+	outline: none;
+	border-color: #ffa500;
+	box-shadow: 0 0 5px rgba(255, 165, 0, 0.5);
+}
+
+.auth-wrapper .error {
+	color: red;
+	font-size: 14px;
+	margin-top: -5px;
+	margin-bottom: 10px;
+}
+
+.auth-wrapper button {
+	width: 100%;
+	background-color: #f90;
+	color: white;
+	font-weight: bold;
+	padding: 12px;
+	border: none;
+	border-radius: 6px;
+	font-size: 16px;
+	cursor: pointer;
+	margin-top: 10px;
+}
+
+.auth-wrapper button:hover {
+	background-color: #e68600;
+}
+
+.auth-wrapper .recaptcha {
+	margin: 10px 0;
+	display: flex;
+	justify-content: center;
+}
+
+.auth-tab-buttons {
+	display: flex;
+	margin-bottom: 20px;
+}
+
+.auth-tab-button {
+	flex: 1;
+	padding: 10px;
+	background: #e0e0e0;
+	border: none;
+	font-weight: bold;
+	cursor: pointer;
+	text-align: center;
+	text-decoration: none;
+	color: #333;
+	border-radius: 6px 6px 0 0;
+}
+
+.auth-tab-button.active {
+	background: #f90;
+	color: #fff;
+}
