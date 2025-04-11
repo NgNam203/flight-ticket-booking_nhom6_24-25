@@ -1,7 +1,7 @@
 // /frontend/src/services/flightService.js
 import axios from "axios";
 
-const API_URL = "http://localhost:3001/api/flights";
+const API_URL = `${process.env.REACT_APP_API_URL}/api/flights`;
 
 // Lấy danh sách chuyến bay
 export const getAllFlights = async (token) => {

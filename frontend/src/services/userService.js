@@ -1,7 +1,7 @@
 // /src/services/userService.js
 import axios from "axios";
 
-const API_URL = "http://localhost:3001/api/user";
+const API_URL = `${process.env.REACT_APP_API_URL}/api/user`;
 
 // Lấy thông tin cá nhân
 export const getProfile = async (token) => {

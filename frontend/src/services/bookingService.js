@@ -1,7 +1,7 @@
 // /frontend/src/services/bookingService.js
 import axios from "axios";
 
-const API_URL = "http://localhost:3001/api/booking";
+const API_URL = `${process.env.REACT_APP_API_URL}/api/booking`;
 
 // 1. Lấy tất cả booking (cho admin)
 export const getAllBookings = async (token) => {
