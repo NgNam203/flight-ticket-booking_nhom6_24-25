@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
-import dotenv from "dotenv";
-import Airline from "../models/Airline.js";
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+const Airline = require("../models/Airline.js");
 
 dotenv.config();
 

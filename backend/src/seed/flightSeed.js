@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
-import dotenv from "dotenv";
-import Flight from "../models/Flight.js";
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+const Flight = require("../models/Flight.js");
 
 dotenv.config();
 

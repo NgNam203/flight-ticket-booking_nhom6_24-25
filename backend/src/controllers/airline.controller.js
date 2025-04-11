@@ -1,7 +1,7 @@
-import Airline from "../models/Airline";
+const Airline = require("../models/Airline");
 
 // [GET] /api/airlines
-export const getAllAirlines = async (req, res) => {
+const getAllAirlines = async (req, res) => {
 	try {
 		const airlines = await Airline.find();
 		res.status(200).json(airlines);
@@ -11,7 +11,7 @@ export const getAllAirlines = async (req, res) => {
 };
 
 // [POST] /api/airlines
-export const createAirline = async (req, res) => {
+const createAirline = async (req, res) => {
 	try {
 		const { name, code, logo } = req.body;
 		const newAirline = new Airline({ name, code, logo });
@@ -23,7 +23,7 @@ export const createAirline = async (req, res) => {
 };
 
 // [PUT] /api/airlines/:id
-export const updateAirline = async (req, res) => {
+const updateAirline = async (req, res) => {
 	try {
 		const { id } = req.params;
 		const updated = await Airline.findByIdAndUpdate(id, req.body, {
@@ -40,7 +40,7 @@ export const updateAirline = async (req, res) => {
 };
 
 // [DELETE] /api/airlines/:id
-export const deleteAirline = async (req, res) => {
+const deleteAirline = async (req, res) => {
 	try {
 		const { id } = req.params;
 		const deleted = await Airline.findByIdAndDelete(id);
@@ -50,4 +50,11 @@ export const deleteAirline = async (req, res) => {
 	} catch (err) {
 		res.status(500).json({ message: "Lỗi xóa airline", error: err.message });
 	}
+};
+
+module.exports = {
+	getAllAirlines,
+	createAirline,
+	updateAirline,
+	deleteAirline,
 };
