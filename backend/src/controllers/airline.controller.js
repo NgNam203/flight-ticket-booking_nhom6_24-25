@@ -1,4 +1,4 @@
-import Airline from "../models/Airline.js";
+import Airline from "../models/Airline";
 
 // [GET] /api/airlines
 export const getAllAirlines = async (req, res) => {
