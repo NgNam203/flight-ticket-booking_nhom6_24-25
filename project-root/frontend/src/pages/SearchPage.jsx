@@ -28,6 +28,8 @@ const SearchPage = () => {
 	const [selectedFlightId, setSelectedFlightId] = useState(null);
 	const [visibleSeatIndex, setVisibleSeatIndex] = useState(0);
 
+	const [showAllSeats, setShowAllSeats] = useState(false);
+
 	const today = dayjs().startOf("day");
 	const dateList = Array.from({ length: 7 }, (_, i) =>
 		today.add(i + weekOffset * 7, "day").format("YYYY-MM-DD")
@@ -93,13 +95,7 @@ const SearchPage = () => {
 	const handleSelectFlight = (flightId) => {
 		setSelectedFlightId(flightId === selectedFlightId ? null : flightId);
 		setVisibleSeatIndex(0);
-	};
-
-	const handleSeatSlide = (dir, seatLength) => {
-		setVisibleSeatIndex((prev) => {
-			if (dir === "left") return Math.max(prev - 1, 0);
-			if (dir === "right") return Math.min(prev + 1, seatLength - 1);
-		});
+		setShowAllSeats(false); // reset
 	};
 
 	const handleBookFlight = (flight, seat) => {
@@ -171,19 +167,23 @@ const SearchPage = () => {
 					</div>
 
 					<div className="flight-list">
-						{filteredFlights.length > 0 && (
-							<div className="flight-route-header">
-								<div className="route-content">
-									<span className="route-index">1.</span>
-									<strong>{filteredFlights[0]?.from?.name}</strong> →
-									<strong>{filteredFlights[0]?.to?.name}</strong>
-								</div>
-							</div>
-						)}
 						{loading ? (
 							<p>Đang tải...</p>
 						) : filteredFlights.length === 0 ? (
-							<p>Không tìm thấy chuyến bay phù hợp.</p>
+							<div className="no-flights">
+								<img
+									src="https://storage.deepgate.io/flight-not-found.png"
+									alt="Không tìm thấy chuyến bay"
+									className="no-flights-img"
+								/>
+								<h3>Không tìm thấy chuyến bay</h3>
+								<p>
+									Rất tiếc chúng tôi không tìm thấy chuyến bay nào phù hợp với
+									bạn.
+									<br />
+									Hãy thử chọn ngày bay khác.
+								</p>
+							</div>
 						) : (
 							filteredFlights.map((flight) => {
 								const hasAvailableSeat = flight.seatClasses.some(
@@ -218,8 +218,8 @@ const SearchPage = () => {
 															minute: "2-digit",
 															hour12: false,
 														}
-													)}
-													{" → "}
+													)}{" "}
+													→{" "}
 													{new Date(flight.arrivalTime).toLocaleTimeString([], {
 														hour: "2-digit",
 														minute: "2-digit",
@@ -244,49 +244,84 @@ const SearchPage = () => {
 
 										{isSelected && (
 											<div className="seat-classes">
-												{visibleClasses.length > 2 && (
+												{!showAllSeats && visibleClasses.length > 3 ? (
 													<>
-														<button
-															className="arrow-btn"
-															onClick={() =>
-																handleSeatSlide("left", visibleClasses.length)
-															}>
-															❮
-														</button>
-														<button
-															className="arrow-btn"
-															onClick={() =>
-																handleSeatSlide("right", visibleClasses.length)
-															}>
-															❯
-														</button>
-													</>
-												)}
-												<div className="seat-scroll">
-													{visibleClasses.map((seat, idx) => (
+														{visibleClasses.slice(0, 2).map((seat, idx) => (
+															<div className="seat-card" key={idx}>
+																<h4>{seat.name}</h4>
+																<p>Giá: {seat.price.toLocaleString()} VND</p>
+																<p>
+																	Hành lý: {seat.baggage.hand} |{" "}
+																	{seat.baggage.checked}
+																</p>
+																<p>Còn lại: {seat.availableSeats} ghế</p>
+																<button
+																	onClick={() => handleBookFlight(flight, seat)}
+																	className="book-button"
+																	disabled={seat.availableSeats === 0}>
+																	{seat.availableSeats === 0
+																		? "Hết vé"
+																		: "Đặt vé"}
+																</button>
+															</div>
+														))}
 														<div
-															className={`seat-card ${
-																idx === visibleSeatIndex ? "active" : ""
-															}`}
-															key={idx}>
-															<h4>{seat.name}</h4>
-															<p>Giá: {seat.price.toLocaleString()} VND</p>
-															<p>
-																Hành lý: {seat.baggage.hand} |{" "}
-																{seat.baggage.checked}
-															</p>
-															<p>Còn lại: {seat.availableSeats} ghế</p>
-															<button
-																onClick={() => handleBookFlight(flight, seat)}
-																className="book-button"
-																disabled={seat.availableSeats === 0}>
-																{seat.availableSeats === 0
-																	? "Hết vé"
-																	: "Đặt vé"}
-															</button>
+															className="seat-card show-more-seat-card"
+															onClick={() => setShowAllSeats(true)}
+															style={{
+																cursor: "pointer",
+																display: "flex",
+																justifyContent: "center",
+																alignItems: "center",
+															}}>
+															<span
+																style={{
+																	fontWeight: "bold",
+																	color: "#007bff",
+																}}>
+																Xem thêm
+															</span>
 														</div>
-													))}
-												</div>
+													</>
+												) : (
+													<div className="seat-slider-wrapper">
+														{visibleClasses.length > 3 && (
+															<button className="arrow-btn">❮</button>
+														)}
+														<div
+															className="seat-slider"
+															style={{
+																transform: `translateX(-${
+																	visibleSeatIndex * 260
+																}px)`,
+															}}>
+															{visibleClasses.map((seat, idx) => (
+																<div className="seat-card" key={idx}>
+																	<h4>{seat.name}</h4>
+																	<p>Giá: {seat.price.toLocaleString()} VND</p>
+																	<p>
+																		Hành lý: {seat.baggage.hand} |{" "}
+																		{seat.baggage.checked}
+																	</p>
+																	<p>Còn lại: {seat.availableSeats} ghế</p>
+																	<button
+																		onClick={() =>
+																			handleBookFlight(flight, seat)
+																		}
+																		className="book-button"
+																		disabled={seat.availableSeats === 0}>
+																		{seat.availableSeats === 0
+																			? "Hết vé"
+																			: "Đặt vé"}
+																	</button>
+																</div>
+															))}
+														</div>
+														{visibleClasses.length > 3 && (
+															<button className="arrow-btn">❯</button>
+														)}
+													</div>
+												)}
 											</div>
 										)}
 									</div>

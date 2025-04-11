@@ -62,7 +62,7 @@ const UserList = () => {
 	return (
 		<div className="user-list">
 			<h2>Quản lý người dùng</h2>
-			<table>
+			<table border="1" cellPadding="6" width="100%">
 				<thead>
 					<tr>
 						<th>Họ tên</th>

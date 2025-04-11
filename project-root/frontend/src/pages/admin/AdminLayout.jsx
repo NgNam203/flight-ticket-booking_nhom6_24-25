@@ -22,6 +22,12 @@ const AdminLayout = () => {
 						<li>
 							<NavLink to="users">Quản lý người dùng</NavLink>
 						</li>
+						<li>
+							<NavLink to="airlines">Quản lý hãng hàng không</NavLink>
+						</li>
+						<li>
+							<NavLink to="airports">Quản lý hãng hàng không</NavLink>
+						</li>
 					</ul>
 				</nav>
 			</aside>

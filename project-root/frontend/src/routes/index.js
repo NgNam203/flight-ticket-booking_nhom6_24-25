@@ -22,7 +22,8 @@ import Dashboard from "../pages/admin/Dashboard";
 import FlightList from "../pages/admin/FlightList";
 import BookingList from "../pages/admin/BookingList";
 import UserList from "../pages/admin/UserList";
-
+import AirlineList from "../pages/admin/AirlineList";
+import AirportList from "../pages/admin/AirportList";
 const AppRoutes = () => {
 	return (
 		<Routes>
@@ -81,6 +82,8 @@ const AppRoutes = () => {
 				<Route path="flights" element={<FlightList />} />
 				<Route path="bookings" element={<BookingList />} />
 				<Route path="users" element={<UserList />} />
+				<Route path="airlines" element={<AirlineList />} />
+				<Route path="airports" element={<AirportList />} />
 			</Route>
 		</Routes>
 	);

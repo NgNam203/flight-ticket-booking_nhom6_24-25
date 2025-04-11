@@ -11,7 +11,13 @@ const verifyToken = (req, res, next) => {
 
 	try {
 		const decoded = jwt.verify(token, process.env.JWT_SECRET);
-		req.user = decoded; // decoded chứa { userId, email }
+
+		// Bổ sung chuẩn hoá id cho các controller dùng
+		req.user = {
+			id: decoded.id || decoded.userId || decoded._id,
+			...decoded,
+		};
+
 		next();
 	} catch (err) {
 		return res

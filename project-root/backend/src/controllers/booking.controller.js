@@ -11,10 +11,15 @@ const getAllBookings = async (req, res) => {
 	try {
 		const bookings = await Booking.find()
 			.populate("user", "fullName email")
-			.populate(
-				"flights.flight",
-				"flightCode airline from to departureTime arrivalTime"
-			)
+			.populate({
+				path: "flights.flight",
+				select: "flightCode airline from to departureTime arrivalTime",
+				populate: [
+					{ path: "airline", select: "name logo" },
+					{ path: "from", select: "name city code" },
+					{ path: "to", select: "name city code" },
+				],
+			})
 			.sort({ createdAt: -1 });
 
 		res.json(bookings);
@@ -66,6 +71,7 @@ const createBooking = async (req, res) => {
 			totalAmount,
 			status: "pending",
 			holdUntil,
+			user: req.user?.id,
 		});
 
 		await newBooking.save();
