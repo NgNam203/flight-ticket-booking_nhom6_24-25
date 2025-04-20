@@ -12,5 +12,7 @@
 
 [Link Nộp bài tập nhóm](https://drive.google.com/drive/folders/1M5-mx-crJnu_BnohHRMxqUCyNId7zb2g?usp=sharing)
 
+[Link báo cáo giữa kì](https://drive.google.com/drive/folders/1HxDfNQ5uzo0ZhaEPGCRdqTWRq3QmrF0T?usp=sharing)
+
 [Link Web vừa deploy](https://flight-ticket-booking-nhom6-24-25-1.onrender.com/login)
 
