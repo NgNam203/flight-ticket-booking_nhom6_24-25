@@ -65,8 +65,10 @@ const SearchForm = ({ initialValues = {} }) => {
 		setFormData((prev) => ({ ...prev, [name]: value }));
 	};
 
-	const handleSelectAirport = (airportId, isFrom = true) => {
-		setFormData((prev) => ({ ...prev, [isFrom ? "from" : "to"]: airportId }));
+	const handleSelectAirport = (airportCode, isFrom = true) => {
+		if (isFrom && airportCode === formData.to) return; // Không chọn nơi đi trùng nơi đến
+		if (!isFrom && airportCode === formData.from) return; // Không chọn nơi đến trùng nơi đi
+		setFormData((prev) => ({ ...prev, [isFrom ? "from" : "to"]: airportCode }));
 		setShowFromDropdown(false);
 		setShowToDropdown(false);
 	};
@@ -84,8 +86,8 @@ const SearchForm = ({ initialValues = {} }) => {
 		navigate(`/search?${query}`, { replace: true });
 	};
 
-	const getAirportLabel = (id) => {
-		const ap = airports.find((a) => a._id === id);
+	const getAirportLabel = (code) => {
+		const ap = airports.find((a) => a.code === code);
 		return ap ? `${ap.city}, ${ap.country}` : "";
 	};
 
@@ -113,20 +115,20 @@ const SearchForm = ({ initialValues = {} }) => {
 						const airport = groupedByCity[city];
 
 						// Lấy sân bay đang được chọn ở bên còn lại
-						const fromAirport = airports.find((ap) => ap._id === formData.from);
-						const toAirport = airports.find((ap) => ap._id === formData.to);
+						// const fromAirport = airports.find((ap) => ap._id === formData.from);
+						// const toAirport = airports.find((ap) => ap._id === formData.to);
 
 						// Nếu đang chọn nơi đến, và thành phố đã chọn làm nơi đi => bỏ qua
-						if (!isFrom && fromAirport?.city === city) return null;
+						if (!isFrom && airport.code === formData.from) return null;
 
 						// Nếu đang chọn nơi đi, và thành phố đã chọn làm nơi đến => bỏ qua
-						if (isFrom && toAirport?.city === city) return null;
+						if (isFrom && airport.code === formData.to) return null;
 
 						return (
 							<div
 								key={city}
 								className="city-item"
-								onClick={() => handleSelectAirport(airport._id, isFrom)}>
+								onClick={() => handleSelectAirport(airport.code, isFrom)}>
 								{city} ({airport.code})
 							</div>
 						);

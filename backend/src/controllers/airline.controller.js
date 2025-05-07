@@ -1,9 +1,11 @@
-import Airline from "../models/Airline.js";
+// backend/src/controllers/airline.controller.js
+
+const airlineService = require("../services/airline.service");
 
 // [GET] /api/airlines
-export const getAllAirlines = async (req, res) => {
+exports.getAllAirlines = async (req, res) => {
 	try {
-		const airlines = await Airline.find();
+		const airlines = await airlineService.getAllAirlines();
 		res.status(200).json(airlines);
 	} catch (err) {
 		res.status(500).json({ message: "Lỗi server", error: err.message });
@@ -11,11 +13,9 @@ export const getAllAirlines = async (req, res) => {
 };
 
 // [POST] /api/airlines
-export const createAirline = async (req, res) => {
+exports.createAirline = async (req, res) => {
 	try {
-		const { name, code, logo } = req.body;
-		const newAirline = new Airline({ name, code, logo });
-		await newAirline.save();
+		const newAirline = await airlineService.createAirline(req.body);
 		res.status(201).json(newAirline);
 	} catch (err) {
 		res.status(500).json({ message: "Lỗi tạo airline", error: err.message });
@@ -23,12 +23,10 @@ export const createAirline = async (req, res) => {
 };
 
 // [PUT] /api/airlines/:id
-export const updateAirline = async (req, res) => {
+exports.updateAirline = async (req, res) => {
 	try {
 		const { id } = req.params;
-		const updated = await Airline.findByIdAndUpdate(id, req.body, {
-			new: true,
-		});
+		const updated = await airlineService.updateAirline(id, req.body);
 		if (!updated)
 			return res.status(404).json({ message: "Không tìm thấy airline" });
 		res.json(updated);
@@ -40,10 +38,10 @@ export const updateAirline = async (req, res) => {
 };
 
 // [DELETE] /api/airlines/:id
-export const deleteAirline = async (req, res) => {
+exports.deleteAirline = async (req, res) => {
 	try {
 		const { id } = req.params;
-		const deleted = await Airline.findByIdAndDelete(id);
+		const deleted = await airlineService.deleteAirline(id);
 		if (!deleted)
 			return res.status(404).json({ message: "Không tìm thấy airline" });
 		res.json({ message: "Đã xóa thành công" });

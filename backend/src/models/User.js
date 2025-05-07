@@ -19,9 +19,10 @@ const userSchema = new mongoose.Schema(
 		},
 
 		// Thông tin cá nhân
-		gender: { type: String, enum: ["Nam", "Nữ"], default: "Nam" },
-		birthdate: Date,
-		nationality: String,
+		gender: { type: String, enum: ["Nam", "Nữ"], default: null },
+		birthdate: { type: Date, default: null },
+		nationality: { type: String, default: null },
+		passportNumber: { type: String, default: null },
 	},
 	{ timestamps: true }
 );

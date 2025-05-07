@@ -1,19 +1,17 @@
 // /backend/src/routes/auth.routes.js
 const express = require("express");
 const router = express.Router();
-
-const {
-	register,
-	verifyEmail,
-	login,
-} = require("../controllers/auth.controller");
+const authController = require("../controllers/auth.controller");
+const loginRateLimiter = require("../middlewares/loginRateLimiter");
 const verifyCaptcha = require("../middlewares/verifyCaptcha");
 
-// Đăng ký người dùng (POST /api/auth/register)
-router.post("/register", verifyCaptcha, register);
+// Đăng ký
+router.post("/register", verifyCaptcha, authController.register);
 
-router.get("/verify-email", verifyEmail);
+// Xác thực email
+router.get("/verify", authController.verifyEmail);
 
-router.post("/login", verifyCaptcha, login);
+// Đăng nhập
+router.post("/login", verifyCaptcha, loginRateLimiter, authController.login);
 
 module.exports = router;

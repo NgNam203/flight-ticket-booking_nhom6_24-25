@@ -1,9 +1,9 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const airlineSchema = new mongoose.Schema({
 	name: { type: String, required: true },
-	code: { type: String }, // ví dụ: VJ, VN, QH
+	code: { type: String, required: true, unique: true }, // ví dụ: VJ, VN, QH
 	logo: { type: String }, // URL ảnh logo (tuỳ bạn)
 });
 
-export default mongoose.model("Airline", airlineSchema);
+module.exports = mongoose.model("Airline", airlineSchema);

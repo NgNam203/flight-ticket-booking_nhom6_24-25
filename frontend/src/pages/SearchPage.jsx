@@ -35,10 +35,10 @@ const SearchPage = () => {
 		today.add(i + weekOffset * 7, "day").format("YYYY-MM-DD")
 	);
 
-	const filteredFlights =
-		selectedAirlines.length === 0
-			? flights
-			: flights.filter((f) => selectedAirlines.includes(f.airline?.name));
+	const filteredFlights = flights.filter((f) => {
+		if (selectedAirlines.length === 0) return true;
+		return selectedAirlines.includes(f.airlineInfo?.name);
+	});
 
 	useEffect(() => {
 		const updatedFrom = searchParams.get("from");
@@ -61,11 +61,12 @@ const SearchPage = () => {
 					departureDate: currentDate,
 					passengers,
 				});
-				setFlights(data);
-				const airlines = Array.from(
-					new Set(data.map((f) => f.airline?.name).filter(Boolean))
-				);
+				setFlights(data || []);
+				const airlines = [
+					...new Set(data.map((f) => f.airlineInfo?.name).filter(Boolean)),
+				];
 				setAvailableAirlines(airlines);
+				setSelectedAirlines([]);
 			} catch (err) {
 				console.error("Lỗi khi tìm chuyến bay", err);
 			} finally {
@@ -186,13 +187,18 @@ const SearchPage = () => {
 							</div>
 						) : (
 							filteredFlights.map((flight) => {
-								const hasAvailableSeat = flight.seatClasses.some(
-									(seat) => seat.availableSeats > 0
-								);
-								if (!hasAvailableSeat) return null;
+								const segment = flight.itineraries?.[0]?.segments?.[0];
 
-								const cheapestClass = flight.seatClasses.find((s) => s?.name);
-								const visibleClasses = flight.seatClasses.filter(
+								const carrierCode = segment.carrierCode;
+								const flightNumber = segment.flightNumber;
+								const departureIATA = segment.departure?.iataCode;
+								const arrivalIATA = segment.arrival?.iataCode;
+								const departureTime = segment.departure?.at;
+								const arrivalTime = segment.arrival?.at;
+								if (!segment) return null;
+
+								const cheapestClass = flight.seatClasses?.find((s) => s?.name);
+								const visibleClasses = flight.seatClasses?.filter(
 									(s) => s?.name
 								);
 								const isSelected = selectedFlightId === flight._id;
@@ -203,31 +209,30 @@ const SearchPage = () => {
 											<div className="flight-info">
 												<div className="airline">
 													<img
-														src={flight.airline?.logo}
-														alt={flight.airline?.name}
+														src={flight.airlineInfo?.logo}
+														alt={flight.airlineInfo?.name}
 														className="airline-logo"
 													/>
-													<span>{flight.airline?.name}</span>
+													<span>{flight.airlineInfo?.name}</span>
 												</div>
-												<div className="code">{flight.flightCode}</div>
+												<div className="code">
+													{carrierCode} {flightNumber}
+												</div>
 												<div className="time">
-													{new Date(flight.departureTime).toLocaleTimeString(
-														[],
-														{
-															hour: "2-digit",
-															minute: "2-digit",
-															hour12: false,
-														}
-													)}{" "}
+													{new Date(departureTime).toLocaleTimeString([], {
+														hour: "2-digit",
+														minute: "2-digit",
+														hour12: false,
+													})}{" "}
 													→{" "}
-													{new Date(flight.arrivalTime).toLocaleTimeString([], {
+													{new Date(arrivalTime).toLocaleTimeString([], {
 														hour: "2-digit",
 														minute: "2-digit",
 														hour12: false,
 													})}
 												</div>
 												<div className="route">
-													{flight.from?.code} → {flight.to?.code}
+													{departureIATA} → {arrivalIATA}
 												</div>
 											</div>
 
