@@ -48,6 +48,7 @@ export const searchFlights = async ({
 	from,
 	to,
 	departureDate,
+	returnDate,
 	passengers = 1,
 }) => {
 	try {
@@ -56,11 +57,14 @@ export const searchFlights = async ({
 				origin: from,
 				destination: to,
 				departure_at: departureDate,
+				...(returnDate ? { return_at: returnDate } : {}),
 				adults: passengers,
+			},
+			headers: {
+				"Cache-Control": "no-cache",
 			},
 		});
 
-		// 🚀 Không cần map, trả thẳng response
 		return response.data;
 	} catch (err) {
 		console.error("❌ Lỗi tìm kiếm chuyến bay:", err);

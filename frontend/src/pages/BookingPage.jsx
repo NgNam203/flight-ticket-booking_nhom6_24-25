@@ -6,11 +6,22 @@ import { createBooking } from "../services/bookingService";
 const BookingPage = () => {
 	const location = useLocation();
 	const navigate = useNavigate();
-	const { flightInfo, seatClass, passengers } = location.state || {}; // Giả sử đã truyền state từ trang tìm kiếm
+	const {
+		flightInfo,
+		seatClass,
+		passengers,
+		outboundFlight,
+		returnFlight,
+		tripType,
+	} = location.state || {};
+	const isRoundTrip = tripType === "roundtrip";
+
+	const outbound = isRoundTrip ? outboundFlight : { flightInfo, seatClass };
+
+	const returnF = isRoundTrip ? returnFlight : null;
 	const [showDetails, setShowDetails] = useState(false);
 	const [showSoldOut, setShowSoldOut] = useState(false);
 
-	// Form state
 	const [passengerInfo, setPassengerInfo] = useState({
 		firstName: "",
 		lastName: "",
@@ -18,6 +29,7 @@ const BookingPage = () => {
 		gender: "",
 		nationality: "",
 	});
+
 	const [contactInfo, setContactInfo] = useState({
 		title: "",
 		firstName: "",
@@ -36,10 +48,9 @@ const BookingPage = () => {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-
 		const bookingData = {
-			flightId: flightInfo._id,
-			seatClass: seatClass.name,
+			flightId: outbound.flightInfo.id,
+			seatClass: outbound.seatClass.name,
 			passengers: [
 				{
 					fullName:
@@ -55,9 +66,14 @@ const BookingPage = () => {
 				phone: contactInfo.phone,
 				email: contactInfo.email,
 			},
-			totalAmount: seatClass.price * passengers,
+			totalAmount: outbound.seatClass.price * passengers,
 		};
-
+		if (isRoundTrip && returnF) {
+			bookingData.returnFlight = {
+				flightId: returnF.flightInfo.id,
+				seatClass: returnF.seatClass.name,
+			};
+		}
 		try {
 			const token = localStorage.getItem("token");
 			const res = await createBooking(bookingData, token);
@@ -74,24 +90,30 @@ const BookingPage = () => {
 			});
 		} catch (err) {
 			console.error("Lỗi tạo booking:", err);
-
-			// Kiểm tra lỗi từ backend
 			if (err?.response?.data?.message === "Vé đã bán hết.") {
-				setShowSoldOut(true); // Kích hoạt popup
+				setShowSoldOut(true);
 			} else {
 				alert("Đặt vé thất bại. Vui lòng thử lại.");
 			}
 		}
 	};
+
+	const segments = flightInfo?.itineraries?.[0]?.segments || [];
+	const departureTime = new Date(segments[0]?.departure?.at);
+	const arrivalTime = new Date(segments[segments.length - 1]?.arrival?.at);
 	const handleReSearch = () => {
-		if (!flightInfo?.from || !flightInfo?.to || !flightInfo?.departureTime) {
+		if (
+			!flightInfo?.originInfo ||
+			!flightInfo?.destinationInfo ||
+			!segments[0]?.departure?.at
+		) {
 			return navigate("/search");
 		}
 
-		const from = flightInfo.from._id;
-		const to = flightInfo.to._id;
+		const from = flightInfo.originInfo.code;
+		const to = flightInfo.destinationInfo.code;
 		const passengersParam = passengers || 1;
-		const departureDate = new Date(flightInfo.departureTime)
+		const departureDate = new Date(segments[0]?.departure?.at)
 			.toISOString()
 			.split("T")[0];
 
@@ -99,41 +121,53 @@ const BookingPage = () => {
 			`/search?from=${from}&to=${to}&passengers=${passengersParam}&departureDate=${departureDate}`
 		);
 	};
-
+	if (!outbound?.flightInfo || !outbound?.seatClass || !passengers) {
+		return (
+			<div style={{ padding: "2rem", textAlign: "center" }}>
+				Không có dữ liệu chuyến bay. Vui lòng quay lại{" "}
+				<a href="/search">trang tìm kiếm</a>.
+			</div>
+		);
+	}
 	return (
 		<div className="booking-page">
 			<Header />
-
 			<div className="booking-container">
-				{/* LEFT SIDE */}
 				<div className="booking-left">
-					{/* FLIGHT INFO */}
 					<div className="flight-summary">
 						<div className="route">
 							<h3>
-								{flightInfo.from?.city} → {flightInfo.to?.city}
+								{outbound.flightInfo.originInfo?.city} →{" "}
+								{outbound.flightInfo.destinationInfo?.city}
 							</h3>
-							<button className="change-flight-btn" onClick={handleReSearch}>
+							<button
+								className="change-flight-btn"
+								onClick={() => navigate("/search")}>
 								Đổi chuyến bay
 							</button>
 							<button onClick={() => setShowDetails(!showDetails)}>
 								Chi tiết {showDetails ? "▲" : "▼"}
 							</button>
 						</div>
+
 						<div className="flight-main">
-							<img src={flightInfo.airline?.logo} alt="airline" />
+							<img src={outbound.flightInfo.airlineInfo?.logo} alt="airline" />
 							<div>
-								<strong>{flightInfo.airline?.name}</strong>
-								<div>{flightInfo.flightCode}</div>
+								<strong>{outbound.flightInfo.airlineInfo?.name}</strong>
+								<div>
+									{segments
+										.map((s) => `${s.carrierCode}${s.number}`)
+										.join(", ")}
+								</div>
 							</div>
 							<div className="time">
-								{new Date(flightInfo.departureTime).toLocaleTimeString([], {
+								{departureTime.toLocaleTimeString([], {
 									hour: "2-digit",
 									minute: "2-digit",
 									hour12: false,
-								})}
-								 - 
-								{new Date(flightInfo.arrivalTime).toLocaleTimeString([], {
+								})}{" "}
+								-{" "}
+								{arrivalTime.toLocaleTimeString([], {
 									hour: "2-digit",
 									minute: "2-digit",
 									hour12: false,
@@ -144,13 +178,38 @@ const BookingPage = () => {
 						{showDetails && (
 							<div className="flight-details">
 								<div>
-									Ngày bay:{" "}
-									{new Date(flightInfo.departureTime).toLocaleDateString()}
+									Ngày bay: {departureTime.toLocaleDateString()} ({" "}
+									{departureTime.toLocaleTimeString([], {
+										hour: "2-digit",
+										minute: "2-digit",
+										hour12: false,
+									})}{" "}
+									) → {arrivalTime.toLocaleDateString()} ({" "}
+									{arrivalTime.toLocaleTimeString([], {
+										hour: "2-digit",
+										minute: "2-digit",
+										hour12: false,
+									})}
+									)
 								</div>
 								<div>
-									{flightInfo.from?.name} → {flightInfo.to?.name}
+									{outbound.flightInfo.originInfo?.name} →{" "}
+									{outbound.flightInfo.destinationInfo?.name}
 								</div>
-								<div>Loại máy bay: {flightInfo.aircraft}</div>
+								<div>
+									Loại máy bay:{" "}
+									{outbound.flightInfo.aircraftNames?.join(", ") ||
+										"Không xác định"}
+								</div>
+								<div>Thời gian bay: {outbound.flightInfo.duration}</div>
+								{outbound.flightInfo.stopType === "one-stop" &&
+									outbound.flightInfo.transitInfo && (
+										<div>
+											Trung chuyển tại {outbound.flightInfo.transitInfo.name} ~{" "}
+											{outbound.flightInfo.transitDurationFormatted ||
+												`${outbound.flightInfo.transitDuration}p`}
+										</div>
+									)}
 							</div>
 						)}
 					</div>
@@ -288,7 +347,10 @@ const BookingPage = () => {
 							<p>
 								<strong>Tổng</strong>{" "}
 								<span style={{ color: "orange", fontWeight: 600 }}>
-									{(seatClass.price * passengers).toLocaleString("vi-VN")} đ
+									{(outbound.seatClass.price * passengers).toLocaleString(
+										"vi-VN"
+									)}{" "}
+									đ
 								</span>
 							</p>
 							<button type="submit" className="submit-btn">
@@ -304,12 +366,15 @@ const BookingPage = () => {
 						<h4>Thông tin hành lý</h4>
 						<p>Hành khách ({passengers} người lớn)</p>
 						<ul>
-							<li>Hành lý ký gửi: {seatClass.baggage.checked}</li>
-							<li>Hành lý xách tay: {seatClass.baggage.hand}</li>
+							<li>Hành lý ký gửi: {outbound.seatClass.baggage.checked}</li>
+							<li>Hành lý xách tay: {outbound.seatClass.baggage.hand}</li>
 						</ul>
 
 						<h4>Tổng</h4>
-						<p>{(seatClass.price * passengers).toLocaleString("vi-VN")} đ</p>
+						<p>
+							{(outbound.seatClass.price * passengers).toLocaleString("vi-VN")}{" "}
+							đ
+						</p>
 					</div>
 				</div>
 			</div>
