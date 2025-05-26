@@ -2,7 +2,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
-import "../assets/css/header.css";
 
 const Header = () => {
 	const navigate = useNavigate();
@@ -21,23 +20,26 @@ const Header = () => {
 	};
 
 	return (
-		<header className="home-header">
+		<header className="flex justify-between items-center px-8 py-4 bg-white shadow-md sticky top-0 z-10">
 			<div
-				className="logo"
-				onClick={handleLogoClick}
-				style={{ cursor: "pointer" }}>
+				className="text-orange-500 font-bold text-xl cursor-pointer"
+				onClick={handleLogoClick}>
 				VEMAYBAY
 			</div>
-			<div className="hotline">Hotline: 0932 126 988</div>
-			<div className="user-icon">
+
+			<div className="text-gray-700 text-sm">Hotline: 0932 126 988</div>
+
+			<div className="text-gray-700">
 				{token ? (
 					<FaUserCircle
 						size={28}
-						style={{ cursor: "pointer" }}
+						className="cursor-pointer"
 						onClick={handleProfileClick}
 					/>
 				) : (
-					<button onClick={handleLoginClick} className="login-button">
+					<button
+						onClick={handleLoginClick}
+						className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-3 py-1 rounded">
 						Đăng nhập
 					</button>
 				)}

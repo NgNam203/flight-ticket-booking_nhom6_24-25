@@ -3,7 +3,6 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { searchFlights } from "../services/flightService";
 import Header from "../components/Header";
 import SearchForm from "../components/SearchForm";
-import "./SearchPage.css";
 import dayjs from "dayjs";
 
 const SearchPage = () => {
@@ -111,9 +110,9 @@ const SearchPage = () => {
 	};
 
 	return (
-		<div className="search-page">
+		<div className="bg-[#f5f7fa] min-h-screen font-sans">
 			<Header />
-			<div className="search-container">
+			<div className="max-w-5xl mx-auto mt-8 p-4 bg-white rounded-lg shadow">
 				<SearchForm
 					initialValues={{
 						from,
@@ -123,9 +122,9 @@ const SearchPage = () => {
 					}}
 				/>
 
-				<div className="date-scroll">
+				<div className="flex items-center gap-2 overflow-x-auto py-2 mb-4">
 					<button
-						className="arrow-button"
+						className="bg-white border border-gray-300 px-3 py-1 rounded hover:bg-gray-100 disabled:opacity-40"
 						onClick={handlePrevWeek}
 						disabled={weekOffset === 0}>
 						❮
@@ -133,21 +132,27 @@ const SearchPage = () => {
 					{dateList.map((date) => (
 						<button
 							key={date}
-							className={`date-item ${date === currentDate ? "active" : ""}`}
+							className={`px-3 py-1 min-w-[100px] border text-sm rounded text-center whitespace-nowrap ${
+								date === currentDate
+									? "bg-orange-400 text-white font-bold border-orange-500"
+									: "bg-white border-gray-300 hover:bg-gray-100"
+							}`}
 							onClick={() => handleDateClick(date)}>
 							{dayjs(date).format("dd, DD/MM/YYYY")}
 						</button>
 					))}
-					<button className="arrow-button" onClick={handleNextWeek}>
+					<button
+						className="bg-white border border-gray-300 px-3 py-1 rounded hover:bg-gray-100"
+						onClick={handleNextWeek}>
 						❯
 					</button>
 				</div>
 
-				<div className="results-section">
-					<div className="airline-filter">
-						<h4>Lọc theo hãng:</h4>
+				<div className="flex gap-4">
+					<div className="w-[240px] bg-[#f3f5f9] p-4 rounded-lg shadow text-sm">
+						<h4 className="font-bold mb-3">Lọc theo hãng:</h4>
 						{availableAirlines.map((airline) => (
-							<label key={airline} style={{ display: "block" }}>
+							<label key={airline} className="block mb-2">
 								<input
 									type="checkbox"
 									value={airline}
@@ -160,27 +165,27 @@ const SearchPage = () => {
 												: prev.filter((a) => a !== value)
 										);
 									}}
-								/>{" "}
+									className="mr-2"
+								/>
 								{airline}
 							</label>
 						))}
 					</div>
 
-					<div className="flight-list">
+					<div className="flex-1 flex flex-col gap-4">
 						{loading ? (
 							<p>Đang tải...</p>
 						) : filteredFlights.length === 0 ? (
-							<div className="no-flights">
+							<div className="text-center py-8 text-gray-700">
 								<img
 									src="https://storage.deepgate.io/flight-not-found.png"
 									alt="Không tìm thấy chuyến bay"
-									className="no-flights-img"
+									className="w-32 mx-auto mb-4 opacity-70"
 								/>
-								<h3>Không tìm thấy chuyến bay</h3>
-								<p>
-									Rất tiếc chúng tôi không tìm thấy chuyến bay nào phù hợp với
-									bạn.
-									<br />
+								<h3 className="text-lg font-bold mb-2">
+									Không tìm thấy chuyến bay
+								</h3>
+								<p className="text-sm text-gray-600">
 									Hãy thử chọn ngày bay khác.
 								</p>
 							</div>
@@ -190,7 +195,6 @@ const SearchPage = () => {
 									(seat) => seat.availableSeats > 0
 								);
 								if (!hasAvailableSeat) return null;
-
 								const cheapestClass = flight.seatClasses.find((s) => s?.name);
 								const visibleClasses = flight.seatClasses.filter(
 									(s) => s?.name
@@ -198,19 +202,23 @@ const SearchPage = () => {
 								const isSelected = selectedFlightId === flight._id;
 
 								return (
-									<div className="flight-card" key={flight._id}>
-										<div className="flight-main">
-											<div className="flight-info">
-												<div className="airline">
+									<div
+										className="border border-gray-300 rounded-lg p-4 bg-gray-50 hover:shadow transition"
+										key={flight._id}>
+										<div className="flex justify-between items-center flex-wrap gap-4">
+											<div className="flex flex-col gap-1">
+												<div className="flex items-center gap-2 font-bold text-gray-800">
 													<img
 														src={flight.airline?.logo}
 														alt={flight.airline?.name}
-														className="airline-logo"
+														className="w-6 h-6 object-contain rounded"
 													/>
 													<span>{flight.airline?.name}</span>
 												</div>
-												<div className="code">{flight.flightCode}</div>
-												<div className="time">
+												<div className="text-sm text-gray-700">
+													{flight.flightCode}
+												</div>
+												<div className="font-bold">
 													{new Date(flight.departureTime).toLocaleTimeString(
 														[],
 														{
@@ -226,100 +234,52 @@ const SearchPage = () => {
 														hour12: false,
 													})}
 												</div>
-												<div className="route">
+												<div className="text-sm text-gray-500">
 													{flight.from?.code} → {flight.to?.code}
 												</div>
 											</div>
-
-											<div className="flight-price">
-												<strong>
+											<div className="flex flex-col items-end gap-2 text-right">
+												<strong className="text-orange-400 text-lg">
 													{cheapestClass?.price?.toLocaleString("vi-VN") || "-"}{" "}
 													₫
 												</strong>
-												<button onClick={() => handleSelectFlight(flight._id)}>
+												<button
+													onClick={() => handleSelectFlight(flight._id)}
+													className="bg-orange-400 text-white px-4 py-2 rounded hover:bg-orange-600">
 													Chọn
 												</button>
 											</div>
 										</div>
 
 										{isSelected && (
-											<div className="seat-classes">
-												{!showAllSeats && visibleClasses.length > 3 ? (
-													<>
-														{visibleClasses.slice(0, 2).map((seat, idx) => (
-															<div className="seat-card" key={idx}>
-																<h4>{seat.name}</h4>
-																<p>Giá: {seat.price.toLocaleString()} VND</p>
-																<p>
-																	Hành lý: {seat.baggage.hand} |{" "}
-																	{seat.baggage.checked}
-																</p>
-																<p>Còn lại: {seat.availableSeats} ghế</p>
-																<button
-																	onClick={() => handleBookFlight(flight, seat)}
-																	className="book-button"
-																	disabled={seat.availableSeats === 0}>
-																	{seat.availableSeats === 0
-																		? "Hết vé"
-																		: "Đặt vé"}
-																</button>
-															</div>
-														))}
-														<div
-															className="seat-card show-more-seat-card"
-															onClick={() => setShowAllSeats(true)}
-															style={{
-																cursor: "pointer",
-																display: "flex",
-																justifyContent: "center",
-																alignItems: "center",
-															}}>
-															<span
-																style={{
-																	fontWeight: "bold",
-																	color: "#007bff",
-																}}>
-																Xem thêm
-															</span>
-														</div>
-													</>
-												) : (
-													<div className="seat-slider-wrapper">
-														{visibleClasses.length > 3 && (
-															<button className="arrow-btn">❮</button>
-														)}
-														<div
-															className="seat-slider"
-															style={{
-																transform: `translateX(-${
-																	visibleSeatIndex * 260
-																}px)`,
-															}}>
-															{visibleClasses.map((seat, idx) => (
-																<div className="seat-card" key={idx}>
-																	<h4>{seat.name}</h4>
-																	<p>Giá: {seat.price.toLocaleString()} VND</p>
-																	<p>
-																		Hành lý: {seat.baggage.hand} |{" "}
-																		{seat.baggage.checked}
-																	</p>
-																	<p>Còn lại: {seat.availableSeats} ghế</p>
-																	<button
-																		onClick={() =>
-																			handleBookFlight(flight, seat)
-																		}
-																		className="book-button"
-																		disabled={seat.availableSeats === 0}>
-																		{seat.availableSeats === 0
-																			? "Hết vé"
-																			: "Đặt vé"}
-																	</button>
-																</div>
-															))}
-														</div>
-														{visibleClasses.length > 3 && (
-															<button className="arrow-btn">❯</button>
-														)}
+											<div className="mt-4 flex gap-3 overflow-x-auto">
+												{(showAllSeats
+													? visibleClasses
+													: visibleClasses.slice(0, 2)
+												).map((seat, idx) => (
+													<div
+														key={idx}
+														className="min-w-[200px] max-w-[240px] border rounded-lg p-4 bg-white shadow">
+														<h4 className="font-semibold mb-1">{seat.name}</h4>
+														<p>Giá: {seat.price.toLocaleString()} VND</p>
+														<p>
+															Hành lý: {seat.baggage.hand} |{" "}
+															{seat.baggage.checked}
+														</p>
+														<p>Còn lại: {seat.availableSeats} ghế</p>
+														<button
+															onClick={() => handleBookFlight(flight, seat)}
+															className="mt-2 bg-orange-400 text-white px-3 py-1 rounded hover:bg-orange-600 disabled:bg-gray-300"
+															disabled={seat.availableSeats === 0}>
+															{seat.availableSeats === 0 ? "Hết vé" : "Đặt vé"}
+														</button>
+													</div>
+												))}
+												{!showAllSeats && visibleClasses.length > 2 && (
+													<div
+														className="min-w-[200px] flex items-center justify-center cursor-pointer text-blue-600 font-bold"
+														onClick={() => setShowAllSeats(true)}>
+														Xem thêm
 													</div>
 												)}
 											</div>

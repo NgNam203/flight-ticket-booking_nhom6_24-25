@@ -13,7 +13,7 @@ const VerifyPage = () => {
 		const verify = async () => {
 			try {
 				const res = await verifyEmail(token, email);
-				setMessage(res.data.message || "Xác thực thành công!");
+				setMessage(res.message || "Xác thực thành công!");
 				setStatus("success");
 			} catch (err) {
 				const msg = err.response?.data?.message;

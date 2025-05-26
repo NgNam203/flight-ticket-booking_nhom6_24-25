@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllAirports } from "../services/airportService";
-import "../assets/css/searchForm.css";
 import dayjs from "dayjs";
 
 const REGIONS = [
@@ -17,31 +16,24 @@ const SearchForm = ({ initialValues = {} }) => {
 	const [airports, setAirports] = useState([]);
 	const [groupedAirports, setGroupedAirports] = useState({});
 	const [activeRegion, setActiveRegion] = useState("Việt Nam");
+	const [showFromDropdown, setShowFromDropdown] = useState(false);
+	const [showToDropdown, setShowToDropdown] = useState(false);
+	const [showPassengerDropdown, setShowPassengerDropdown] = useState(false);
+
 	const [formData, setFormData] = useState({
 		tripType: "oneway",
-		passengers: initialValues.passengers || 1,
+		adults: 1,
+		children: 0,
 		from: initialValues.from || "",
 		to: initialValues.to || "",
 		departureDate: initialValues.departureDate || dayjs().format("YYYY-MM-DD"),
 		returnDate: initialValues.returnDate || "",
 	});
 
-	const [showFromDropdown, setShowFromDropdown] = useState(false);
-	const [showToDropdown, setShowToDropdown] = useState(false);
-
-	const handleSwap = () => {
-		const temp = formData.from;
-		setFormData((prev) => ({
-			...prev,
-			from: prev.to,
-			to: temp,
-		}));
-	};
-
 	useEffect(() => {
 		const fetchAirports = async () => {
 			const res = await getAllAirports();
-			const data = res.data || res; // fallback nếu không bọc trong res.data
+			const data = res.data || res;
 			setAirports(data);
 
 			const grouped = data.reduce((acc, airport) => {
@@ -52,6 +44,7 @@ const SearchForm = ({ initialValues = {} }) => {
 			setGroupedAirports(grouped);
 		};
 		fetchAirports();
+
 		if (initialValues.departureDate) {
 			setFormData((prev) => ({
 				...prev,
@@ -65,6 +58,17 @@ const SearchForm = ({ initialValues = {} }) => {
 		setFormData((prev) => ({ ...prev, [name]: value }));
 	};
 
+	const handleSwap = () => {
+		setFormData((prev) => ({ ...prev, from: prev.to, to: prev.from }));
+	};
+
+	const handlePassengerChange = (type, delta) => {
+		setFormData((prev) => {
+			const newValue = Math.max(0, prev[type] + delta);
+			return { ...prev, [type]: newValue };
+		});
+	};
+
 	const handleSelectAirport = (airportId, isFrom = true) => {
 		setFormData((prev) => ({ ...prev, [isFrom ? "from" : "to"]: airportId }));
 		setShowFromDropdown(false);
@@ -73,8 +77,9 @@ const SearchForm = ({ initialValues = {} }) => {
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
-		const { from, to, departureDate, passengers } = formData;
+		const { from, to, departureDate, adults, children } = formData;
 		if (!from || !to || !departureDate) return;
+		const passengers = adults + children;
 		const query = new URLSearchParams({
 			from,
 			to,
@@ -86,7 +91,7 @@ const SearchForm = ({ initialValues = {} }) => {
 
 	const getAirportLabel = (id) => {
 		const ap = airports.find((a) => a._id === id);
-		return ap ? `${ap.city}, ${ap.country}` : "";
+		return ap ? `${ap.city}, ${ap.country} (${ap.code})` : "";
 	};
 
 	const renderDropdown = (isFrom = true) => {
@@ -97,38 +102,35 @@ const SearchForm = ({ initialValues = {} }) => {
 		}, {});
 
 		return (
-			<div className="dropdown-menu">
-				<div className="tabs">
+			<div className="absolute z-50 mt-2 w-full rounded-lg bg-white border shadow-lg">
+				<div className="flex space-x-2 p-2 overflow-x-auto">
 					{REGIONS.map((region) => (
-						<div
+						<button
 							key={region}
-							className={`tab ${region === activeRegion ? "active" : ""}`}
-							onClick={() => setActiveRegion(region)}>
+							onClick={() => setActiveRegion(region)}
+							className={`px-3 py-1 rounded-full text-sm ${
+								region === activeRegion
+									? "bg-blue-600 text-white"
+									: "bg-gray-200 text-gray-700"
+							}`}>
 							{region}
-						</div>
+						</button>
 					))}
 				</div>
-				<div className="city-grid">
+				<div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-4 max-h-64 overflow-y-auto">
 					{Object.keys(groupedByCity).map((city) => {
 						const airport = groupedByCity[city];
-
-						// Lấy sân bay đang được chọn ở bên còn lại
 						const fromAirport = airports.find((ap) => ap._id === formData.from);
 						const toAirport = airports.find((ap) => ap._id === formData.to);
-
-						// Nếu đang chọn nơi đến, và thành phố đã chọn làm nơi đi => bỏ qua
 						if (!isFrom && fromAirport?.city === city) return null;
-
-						// Nếu đang chọn nơi đi, và thành phố đã chọn làm nơi đến => bỏ qua
 						if (isFrom && toAirport?.city === city) return null;
-
 						return (
-							<div
+							<button
 								key={city}
-								className="city-item"
-								onClick={() => handleSelectAirport(airport._id, isFrom)}>
+								onClick={() => handleSelectAirport(airport._id, isFrom)}
+								className="text-left text-sm hover:bg-blue-100 rounded p-2">
 								{city} ({airport.code})
-							</div>
+							</button>
 						);
 					})}
 				</div>
@@ -137,60 +139,97 @@ const SearchForm = ({ initialValues = {} }) => {
 	};
 
 	return (
-		<form className="search-form" onSubmit={handleSubmit}>
-			<div className="search-top">
+		<form
+			onSubmit={handleSubmit}
+			className="bg-white p-4 rounded-xl shadow-md space-y-4">
+			<div className="flex flex-wrap gap-4">
 				<select
 					name="tripType"
 					value={formData.tripType}
-					onChange={handleChange}>
-					<option value="oneway">Một chiều</option>
-					<option value="roundtrip" disabled>
-						Khứ hồi
-					</option>
+					onChange={handleChange}
+					className="rounded-md border px-3 py-2 shadow-sm focus:ring focus:ring-blue-500">
+					<option value="oneway">✈️ Một chiều</option>
+					<option value="roundtrip">🔁 Khứ hồi</option>
 				</select>
 
-				<select
-					name="passengers"
-					value={formData.passengers}
-					onChange={handleChange}
-					disabled // nếu bạn muốn không cho chọn khác
-				>
-					<option value={1}>1 Người lớn</option>
-				</select>
+				<div className="relative">
+					<button
+						type="button"
+						onClick={() => setShowPassengerDropdown(!showPassengerDropdown)}
+						className="rounded-md border px-3 py-2 shadow-sm focus:ring focus:ring-blue-500">
+						🧍 {formData.adults} Người lớn, {formData.children} Trẻ em
+					</button>
+					{showPassengerDropdown && (
+						<div className="absolute mt-2 w-64 rounded-lg border bg-white shadow-lg z-10 p-4">
+							<div className="flex justify-between items-center mb-2">
+								<span>Người lớn</span>
+								<div className="flex items-center gap-2">
+									<button
+										onClick={() => handlePassengerChange("adults", -1)}
+										className="px-2 py-1 bg-gray-100 rounded">
+										-
+									</button>
+									<span>{formData.adults}</span>
+									<button
+										onClick={() => handlePassengerChange("adults", 1)}
+										className="px-2 py-1 bg-gray-100 rounded">
+										+
+									</button>
+								</div>
+							</div>
+							<div className="flex justify-between items-center">
+								<span>Trẻ em</span>
+								<div className="flex items-center gap-2">
+									<button
+										onClick={() => handlePassengerChange("children", -1)}
+										className="px-2 py-1 bg-gray-100 rounded">
+										-
+									</button>
+									<span>{formData.children}</span>
+									<button
+										onClick={() => handlePassengerChange("children", 1)}
+										className="px-2 py-1 bg-gray-100 rounded">
+										+
+									</button>
+								</div>
+							</div>
+						</div>
+					)}
+				</div>
 			</div>
 
-			<div className="search-fields">
-				<div className="input-wrapper">
+			<div className="grid grid-cols-6 gap-2 items-center">
+				<div className="relative col-span-2">
 					<input
 						type="text"
-						placeholder="✈️ Khởi hành từ"
+						name="from"
+						onFocus={() => setShowFromDropdown(true)}
+						onBlur={() => setTimeout(() => setShowFromDropdown(false), 200)}
 						value={getAirportLabel(formData.from)}
 						readOnly
-						onClick={() => {
-							setShowFromDropdown(!showFromDropdown);
-							setShowToDropdown(false);
-						}}
+						placeholder="Khởi hành từ"
+						className="w-full rounded-md border px-3 py-2 shadow-sm focus:ring-blue-500 focus:outline-none"
 					/>
 					{showFromDropdown && renderDropdown(true)}
 				</div>
-				<span
-					style={{ fontSize: "18px" }}
+
+				<button
 					type="button"
-					className="swap-button"
 					onClick={handleSwap}
-					title="Đổi nơi đi và đến">
+					className="text-center text-gray-600 hover:text-gray-900">
 					⇄
-				</span>
-				<div className="input-wrapper">
+				</button>
+
+				<div className="relative col-span-2">
 					<input
 						type="text"
-						placeholder="📍 Nơi đến"
+						name="to"
+						onFocus={() => setShowToDropdown(true)}
+						onBlur={() => setTimeout(() => setShowToDropdown(false), 200)}
 						value={getAirportLabel(formData.to)}
 						readOnly
-						onClick={() => {
-							setShowToDropdown(!showToDropdown);
-							setShowFromDropdown(false);
-						}}
+						placeholder="Nơi đến"
+						className="w-full rounded-md border px-3 py-2 shadow-sm focus:ring-blue-500 focus:outline-none"
 					/>
 					{showToDropdown && renderDropdown(false)}
 				</div>
@@ -200,6 +239,7 @@ const SearchForm = ({ initialValues = {} }) => {
 					name="departureDate"
 					value={formData.departureDate}
 					onChange={handleChange}
+					className="rounded-md border px-3 py-2 shadow-sm focus:ring-blue-500"
 				/>
 
 				<input
@@ -208,11 +248,12 @@ const SearchForm = ({ initialValues = {} }) => {
 					value={formData.returnDate}
 					onChange={handleChange}
 					disabled={formData.tripType === "oneway"}
+					className="rounded-md border px-3 py-2 shadow-sm focus:ring-blue-500 disabled:opacity-50"
 				/>
 
 				<button
 					type="submit"
-					disabled={!formData.from || !formData.to || !formData.departureDate}>
+					className="col-span-1 bg-orange-400 text-white rounded px-5 py-2 text-sm hover:bg-blue-700">
 					🔍 Tìm kiếm
 				</button>
 			</div>

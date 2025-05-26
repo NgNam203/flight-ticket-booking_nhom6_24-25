@@ -24,6 +24,7 @@ const flightSchema = new mongoose.Schema({
 	aircraft: { type: String },
 	status: { type: String, default: "scheduled" },
 	seatClasses: [seatClassSchema], // dùng schema phụ
+	durationMinutes: Number,
 });
 
 module.exports = mongoose.model("Flight", flightSchema);

@@ -8,12 +8,12 @@ const {
 	login,
 } = require("../controllers/auth.controller");
 const verifyCaptcha = require("../middlewares/verifyCaptcha");
-
+const loginLimiter = require("../middlewares/loginLimiter");
 // Đăng ký người dùng (POST /api/auth/register)
 router.post("/register", verifyCaptcha, register);
 
 router.get("/verify-email", verifyEmail);
 
-router.post("/login", verifyCaptcha, login);
+router.post("/login", loginLimiter, verifyCaptcha, login);
 
 module.exports = router;

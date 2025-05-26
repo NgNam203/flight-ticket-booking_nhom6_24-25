@@ -23,10 +23,25 @@ const bookingSchema = new mongoose.Schema({
 		phone: String,
 		email: String,
 	},
-	paymentMethod: String,
+	paymentMethod: {
+		type: String,
+		enum: ["bank", "atm", "international", "cod"], // cod = pay later
+		required: true,
+	},
+
+	convenienceFee: {
+		type: Number,
+		required: true,
+		default: 0, // được tính tùy vào paymentMethod
+	},
 	totalAmount: Number,
-	status: { type: String, default: "pending" },
+	status: {
+		type: String,
+		enum: ["pending", "paid", "cancelled", "expired"],
+		default: "pending",
+	},
 	holdUntil: Date,
+	bookingRef: { type: String, unique: true },
 	createdAt: { type: Date, default: Date.now },
 });
 

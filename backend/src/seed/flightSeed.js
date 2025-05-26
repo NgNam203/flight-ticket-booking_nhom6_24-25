@@ -39,13 +39,20 @@ const generateRandomFlight = (i) => {
 		to = airports[Math.floor(Math.random() * airports.length)];
 	} while (from === to);
 
+	// Tạo ngày bay trong 30 ngày tới
+	const daysToAdd = Math.floor(Math.random() * 14);
 	const departure = new Date();
-	departure.setDate(departure.getDate() + Math.floor(Math.random() * 7));
-	departure.setHours(6 + Math.floor(Math.random() * 12));
-	departure.setMinutes(0);
+	departure.setDate(departure.getDate() + daysToAdd);
+
+	// Giờ bay từ 6h sáng đến 20h tối (14 tiếng)
+	const hour = 6 + Math.floor(Math.random() * 14);
+	departure.setHours(hour);
+	departure.setMinutes(Math.random() > 0.5 ? 0 : 30); // 0 hoặc 30 phút
 
 	const arrival = new Date(departure);
-	arrival.setHours(arrival.getHours() + 1 + Math.floor(Math.random() * 2));
+	// Thời gian bay từ 1-4 tiếng tùy loại máy bay
+	const flightDuration = 1 + Math.floor(Math.random() * 4);
+	arrival.setHours(arrival.getHours() + flightDuration);
 
 	return {
 		flightCode: `${airlineCode}${1000 + i}`,
@@ -81,12 +88,12 @@ const seedFlights = async () => {
 		await Flight.deleteMany();
 		const flights = [];
 
-		for (let i = 0; i < 60; i++) {
+		for (let i = 0; i < 150; i++) {
 			flights.push(generateRandomFlight(i));
 		}
 
 		await Flight.insertMany(flights);
-		console.log("✅ Đã seed 60 chuyến bay thành công!");
+		console.log("✅ Đã seed 100 chuyến bay trong 1 tháng tới thành công!");
 		process.exit();
 	} catch (err) {
 		console.error("❌ Lỗi seed:", err);
