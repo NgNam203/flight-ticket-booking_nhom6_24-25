@@ -17,5 +17,5 @@ export const verifyEmail = async (token, email) => {
 
 export const loginUser = async (data) => {
 	const res = await axios.post(`${API_URL}/login`, data);
-	return res.data;
+	return res.data.data;
 };

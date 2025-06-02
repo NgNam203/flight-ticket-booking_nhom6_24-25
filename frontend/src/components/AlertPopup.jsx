@@ -6,8 +6,9 @@ const AlertPopup = {
 			icon: "success",
 			title,
 			text: message,
-			showConfirmButton: false,
-			timer: 1500,
+			confirmButtonText: "OK", // ✅ thêm nút
+			allowOutsideClick: false,
+			allowEscapeKey: false,
 		});
 	},
 

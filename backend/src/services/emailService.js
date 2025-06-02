@@ -13,17 +13,30 @@ const sendVerificationEmail = async (toEmail, token) => {
 	const verifyUrl = `${process.env.CLIENT_URL}/verify-email?token=${token}&email=${toEmail}`;
 
 	const mailOptions = {
-		from: `""VeMayBay.vn" <${process.env.EMAIL_USER}>`,
+		from: `"VeMayBay.vn" <${process.env.EMAIL_USER}>`,
 		to: toEmail,
 		subject: "Xác thực tài khoản",
 		html: `
-      <h3>Chào bạn,</h3>
-      <p>Vui lòng xác thực tài khoản bằng cách nhấn vào nút bên dưới:</p>
-      <a href="${verifyUrl}" style="padding: 10px 20px; background: #0d6efd; color: white; border-radius: 5px; text-decoration: none;">
-        Xác thực tài khoản
-      </a>
-      <p><i>Link sẽ hết hạn sau 1 giờ.</i></p>
-    `,
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+	<meta charset="UTF-8" />
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; padding: 20px;">
+	<h3>Chào bạn,</h3>
+	<p>Cảm ơn bạn đã đăng ký tài khoản tại VeMayBay.vn.</p>
+	<p>Vui lòng xác thực tài khoản bằng cách nhấn vào nút bên dưới:</p>
+	<p style="margin: 24px 0;">
+		<a href="${verifyUrl}"
+			style="display: inline-block; padding: 12px 24px; background-color: #0d6efd; color: #fff; text-decoration: none; border-radius: 6px;">
+			Xác thực tài khoản
+		</a>
+	</p>
+	<p>Nếu bạn không đăng ký tài khoản này, vui lòng bỏ qua email này.</p>
+	<p><i>Link xác thực sẽ hết hạn sau 1 giờ.</i></p>
+</body>
+</html>
+		`,
 	};
 
 	await transporter.sendMail(mailOptions);

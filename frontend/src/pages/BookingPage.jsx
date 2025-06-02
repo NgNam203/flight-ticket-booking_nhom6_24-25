@@ -1,335 +1,402 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
-import "./BookingPage.css"; // Giả sử bạn có file CSS cho trang này
 import { createBooking } from "../services/bookingService";
-const BookingPage = () => {
-	const location = useLocation();
-	const navigate = useNavigate();
-	const { flightInfo, seatClass, passengers } = location.state || {}; // Giả sử đã truyền state từ trang tìm kiếm
-	const [showDetails, setShowDetails] = useState(false);
-	const [showSoldOut, setShowSoldOut] = useState(false);
+import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
+import weekday from "dayjs/plugin/weekday";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+import localeData from "dayjs/plugin/localeData";
+import "dayjs/locale/vi";
 
-	// Form state
+dayjs.extend(duration);
+dayjs.extend(weekday);
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.extend(localeData);
+dayjs.locale("vi");
+
+const BookingPage = () => {
+	const navigate = useNavigate();
+	const location = useLocation();
+	const { flight, seatClass, totalAmount } = location.state || {};
+
 	const [passengerInfo, setPassengerInfo] = useState({
-		firstName: "",
 		lastName: "",
-		birthDate: "",
+		firstName: "",
+		dob: "",
 		gender: "",
 		nationality: "",
 	});
+
 	const [contactInfo, setContactInfo] = useState({
 		title: "",
-		firstName: "",
-		lastName: "",
+		fullName: "",
 		phone: "",
 		email: "",
 	});
 
-	const handlePassengerChange = (e) => {
-		setPassengerInfo({ ...passengerInfo, [e.target.name]: e.target.value });
+	const [voucher, setVoucher] = useState("");
+	const [errors, setErrors] = useState({});
+	useEffect(() => {
+		if (!flight || !seatClass || !totalAmount) navigate("/");
+	}, [flight, seatClass, totalAmount, navigate]);
+
+	const validate = () => {
+		const newErrors = {};
+
+		if (!passengerInfo.lastName) newErrors.lastName = "Chưa nhập họ";
+		if (!passengerInfo.firstName)
+			newErrors.firstName = "Chưa nhập tên đệm và tên";
+		if (!passengerInfo.dob) newErrors.dob = "Nhập ngày sinh";
+		if (!passengerInfo.gender) newErrors.gender = "Chọn giới tính";
+		if (!passengerInfo.nationality)
+			newErrors.nationality = "Chưa chọn quốc tịch";
+
+		if (!contactInfo.title) newErrors.title = "Chọn danh xưng";
+		if (!contactInfo.fullName)
+			newErrors.fullName = "Vui lòng nhập đầy đủ họ và tên";
+		if (!contactInfo.phone) newErrors.phone = "Nhập số điện thoại";
+		if (!contactInfo.email) newErrors.email = "Nhập email";
+
+		setErrors(newErrors);
+		return Object.keys(newErrors).length === 0;
 	};
-
-	const handleContactChange = (e) => {
-		setContactInfo({ ...contactInfo, [e.target.name]: e.target.value });
-	};
-
-	const handleSubmit = async (e) => {
-		e.preventDefault();
-
-		const bookingData = {
-			flightId: flightInfo._id,
-			seatClass: seatClass.name,
-			passengers: [
-				{
-					fullName:
-						`${passengerInfo.lastName} ${passengerInfo.firstName}`.trim(),
-					gender: passengerInfo.gender,
-					nationality: passengerInfo.nationality,
-					birthDate: passengerInfo.birthDate,
-				},
-			],
-			contact: {
-				fullName:
-					`${contactInfo.title} ${contactInfo.lastName} ${contactInfo.firstName}`.trim(),
-				phone: contactInfo.phone,
-				email: contactInfo.email,
-			},
-			totalAmount: seatClass.price * passengers,
-		};
-
+	const handleBooking = async () => {
 		try {
 			const token = localStorage.getItem("token");
-			const res = await createBooking(bookingData, token);
-			navigate("/payment", {
+			const data = {
+				flightId: flight._id,
+				seatClass: seatClass.name,
+				passengers: [
+					{
+						fullName: `${passengerInfo.lastName} ${passengerInfo.firstName}`,
+						gender:
+							passengerInfo.gender === "Nam"
+								? "male"
+								: passengerInfo.gender === "Nữ"
+								? "female"
+								: "other",
+						birthDate: passengerInfo.dob,
+						nationality: passengerInfo.nationality,
+					},
+				],
+				contact: contactInfo,
+				totalAmount,
+				paymentMethod: "cod",
+			};
+			console.log("Sending booking:", data);
+			const res = await createBooking(data, token);
+			navigate(`/payment?bookingId=${res.data.bookingId}`, {
 				state: {
-					bookingId: res.bookingId,
-					bookingCode: res.bookingCode,
-					holdUntil: res.holdUntil,
-					flightInfo,
+					bookingId: res.data.bookingId,
+					bookingCode: res.data.bookingCode,
+					flightInfo: flight,
 					seatClass,
-					passengers,
-					totalAmount: bookingData.totalAmount,
+					passengers: data.passengers,
+					holdUntil: res.data.holdUntil,
 				},
 			});
 		} catch (err) {
-			console.error("Lỗi tạo booking:", err);
-
-			// Kiểm tra lỗi từ backend
-			if (err?.response?.data?.message === "Vé đã bán hết.") {
-				setShowSoldOut(true); // Kích hoạt popup
-			} else {
-				alert("Đặt vé thất bại. Vui lòng thử lại.");
-			}
+			console.error(err);
+			alert("Đặt vé thất bại. Vui lòng thử lại.");
 		}
 	};
-	const handleReSearch = () => {
-		if (!flightInfo?.from || !flightInfo?.to || !flightInfo?.departureTime) {
-			return navigate("/search");
-		}
 
-		const from = flightInfo.from._id;
-		const to = flightInfo.to._id;
-		const passengersParam = passengers || 1;
-		const departureDate = new Date(flightInfo.departureTime)
-			.toISOString()
-			.split("T")[0];
-
-		navigate(
-			`/search?from=${from}&to=${to}&passengers=${passengersParam}&departureDate=${departureDate}`
-		);
-	};
-
+	const inputClass = (name) =>
+		`border rounded px-3 py-2 w-full text-sm placeholder-gray-400 ${
+			errors[name] ? "border-red-500" : "border-gray-300"
+		}`;
+	const renderLabeledInput = (label, inputElement, errorKey) => (
+		<div>
+			<label className="block text-sm font-medium text-gray-700 mb-1">
+				{label}
+			</label>
+			{inputElement}
+			{errors[errorKey] && (
+				<p className="text-red-500 text-xs mt-1">{errors[errorKey]}</p>
+			)}
+		</div>
+	);
 	return (
-		<div className="booking-page">
+		<div className="min-h-screen bg-gray-100">
 			<Header />
+			<div className="max-w-7xl mx-auto p-4 lg:flex gap-6 mt-4">
+				{/* LEFT */}
+				<div className="flex-1 space-y-6">
+					{/* Flight Info */}
 
-			<div className="booking-container">
-				{/* LEFT SIDE */}
-				<div className="booking-left">
-					{/* FLIGHT INFO */}
-					<div className="flight-summary">
-						<div className="route">
-							<h3>
-								{flightInfo.from?.city} → {flightInfo.to?.city}
-							</h3>
-							<button className="change-flight-btn" onClick={handleReSearch}>
+					<div className="bg-white rounded shadow p-4">
+						<div className="flex justify-between items-center mb-2">
+							<h2 className="font-semibold text-lg">
+								{flight.from.city} → {flight.to.city}
+							</h2>
+							<button
+								onClick={() => navigate("/search")}
+								className="text-sm text-orange-600 hover:underline">
 								Đổi chuyến bay
 							</button>
-							<button onClick={() => setShowDetails(!showDetails)}>
-								Chi tiết {showDetails ? "▲" : "▼"}
-							</button>
-						</div>
-						<div className="flight-main">
-							<img src={flightInfo.airline?.logo} alt="airline" />
-							<div>
-								<strong>{flightInfo.airline?.name}</strong>
-								<div>{flightInfo.flightCode}</div>
-							</div>
-							<div className="time">
-								{new Date(flightInfo.departureTime).toLocaleTimeString([], {
-									hour: "2-digit",
-									minute: "2-digit",
-									hour12: false,
-								})}
-								 - 
-								{new Date(flightInfo.arrivalTime).toLocaleTimeString([], {
-									hour: "2-digit",
-									minute: "2-digit",
-									hour12: false,
-								})}
-							</div>
 						</div>
 
-						{showDetails && (
-							<div className="flight-details">
-								<div>
-									Ngày bay:{" "}
-									{new Date(flightInfo.departureTime).toLocaleDateString()}
-								</div>
-								<div>
-									{flightInfo.from?.name} → {flightInfo.to?.name}
-								</div>
-								<div>Loại máy bay: {flightInfo.aircraft}</div>
+						<div className="flex justify-between items-center border-b pb-2 mb-2">
+							<div className="text-sm bg-orange-200 text-orange-700 px-2 py-1 rounded">
+								Chiều đi
 							</div>
-						)}
+							<div className="text-gray-600 text-sm">Chi tiết</div>
+						</div>
+						<div className="flex justify-between items-center">
+							<div>
+								<p className="font-semibold text-lg">
+									{flight.airline?.name} - {flight.flightCode}
+								</p>
+								<p className="text-sm text-gray-600">
+									{flight.from.name} → {flight.to.name}
+								</p>
+								<p className="text-sm text-gray-500">{flight.departureDate}</p>
+							</div>
+							<div className="text-right">
+								{(() => {
+									const departure = dayjs(flight.departureTime);
+									const arrival = dayjs(flight.arrivalTime);
+									const diff = dayjs.duration(arrival.diff(departure));
+									const durationText = `${diff.hours()}g ${diff.minutes()}p`;
+									const dayFrom = departure.format("dd, DD/MM/YYYY HH:mm");
+									const dayTo = arrival.format("dd, DD/MM/YYYY HH:mm");
+
+									return (
+										<>
+											<p className="text-sm text-gray-700 font-medium">
+												{dayFrom} → {dayTo}
+											</p>
+											<p className="text-xs text-gray-500">
+												Bay thẳng • {durationText}
+											</p>
+											<p className="text-xs text-gray-500">
+												Loại máy bay: {flight.aircraft || "Không rõ"}
+											</p>
+										</>
+									);
+								})()}
+
+								<p className="text-xs text-gray-500">{seatClass.name}</p>
+							</div>
+						</div>
 					</div>
 
-					{/* CUSTOMER FORM */}
-					<form className="customer-form" onSubmit={handleSubmit}>
-						<h3>Hành khách 1 (Người lớn)</h3>
-						<div className="form-group">
-							<div style={{ flex: "1 1 45%" }}>
-								<label>Họ (không dấu)</label>
+					{/* Passenger Info */}
+					<div className="bg-white rounded shadow p-4">
+						<h3 className="font-bold mb-4">Hành khách 1 (Người lớn)</h3>
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							{renderLabeledInput(
+								"Họ (không dấu)",
 								<input
-									name="lastName"
+									type="text"
 									placeholder="Nhập họ"
+									className={inputClass("lastName")}
 									value={passengerInfo.lastName}
-									onChange={handlePassengerChange}
-									required
-								/>
-							</div>
-
-							<div style={{ flex: "1 1 45%" }}>
-								<label>Tên đệm và tên (không dấu)</label>
+									onChange={(e) =>
+										setPassengerInfo({
+											...passengerInfo,
+											lastName: e.target.value,
+										})
+									}
+								/>,
+								"lastName"
+							)}
+							{renderLabeledInput(
+								"Tên đệm và tên (không dấu)",
 								<input
-									name="firstName"
+									type="text"
 									placeholder="Nhập tên đệm và tên"
+									className={inputClass("firstName")}
 									value={passengerInfo.firstName}
-									onChange={handlePassengerChange}
-									required
-								/>
-							</div>
+									onChange={(e) =>
+										setPassengerInfo({
+											...passengerInfo,
+											firstName: e.target.value,
+										})
+									}
+								/>,
+								"firstName"
+							)}
 
-							<div style={{ flex: "1 1 45%" }}>
-								<label>Ngày tháng năm sinh</label>
+							{renderLabeledInput(
+								"Ngày tháng năm sinh",
 								<input
-									name="birthDate"
 									type="date"
-									value={passengerInfo.birthDate}
-									onChange={handlePassengerChange}
-									required
-								/>
-							</div>
-
-							<div style={{ flex: "1 1 45%" }}>
-								<label>Giới tính</label>
+									className={inputClass("dob")}
+									value={passengerInfo.dob}
+									onChange={(e) =>
+										setPassengerInfo({ ...passengerInfo, dob: e.target.value })
+									}
+								/>,
+								"dob"
+							)}
+							{renderLabeledInput(
+								"Giới tính",
 								<select
-									name="gender"
+									className={inputClass("gender")}
 									value={passengerInfo.gender}
-									onChange={handlePassengerChange}
-									required>
-									<option value="">Chọn giới tính</option>
+									onChange={(e) =>
+										setPassengerInfo({
+											...passengerInfo,
+											gender: e.target.value,
+										})
+									}>
+									<option value="">Chọn</option>
 									<option value="Nam">Nam</option>
 									<option value="Nữ">Nữ</option>
-								</select>
-							</div>
-
-							<div style={{ flex: "1 1 45%" }}>
-								<label>Quốc tịch</label>
-								<input
-									name="nationality"
-									placeholder="Nhập quốc tịch"
-									value={passengerInfo.nationality}
-									onChange={handlePassengerChange}
-									required
-								/>
-							</div>
-						</div>
-
-						<h3>Thông tin liên hệ</h3>
-						<div className="form-group">
-							<div style={{ flex: "1 1 45%" }}>
-								<label>Danh xưng *</label>
+								</select>,
+								"gender"
+							)}
+							{renderLabeledInput(
+								"Quốc tịch",
 								<select
-									name="title"
+									className={`${inputClass("nationality")} md:col-span-2`}
+									value={passengerInfo.nationality}
+									onChange={(e) =>
+										setPassengerInfo({
+											...passengerInfo,
+											nationality: e.target.value,
+										})
+									}>
+									<option value="">Chọn</option>
+									<option value="Việt Nam">Việt Nam</option>
+									<option value="Khác">Khác</option>
+								</select>,
+								"nationality"
+							)}
+						</div>
+					</div>
+
+					{/* Contact Info */}
+					<div className="bg-white rounded shadow p-4">
+						<h3 className="font-bold mb-4">Thông tin liên hệ</h3>
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							{renderLabeledInput(
+								"Danh xưng",
+								<select
+									className={inputClass("title")}
 									value={contactInfo.title}
-									placeholder="Chọn danh xưng"
-									onChange={handleContactChange}
-									required>
-									<option value="">Chọn danh xưng</option>
-									<option value="Anh">Ông</option>
-									<option value="Chị">Bà</option>
-								</select>
-							</div>
-
-							<div style={{ flex: "1 1 45%" }}>
-								<label>Họ (không dấu) *</label>
+									onChange={(e) =>
+										setContactInfo({ ...contactInfo, title: e.target.value })
+									}>
+									<option value="">Chọn</option>
+									<option value="Ông">Ông</option>
+									<option value="Bà">Bà</option>
+								</select>,
+								"title"
+							)}
+							{renderLabeledInput(
+								"Họ và tên",
 								<input
-									name="lastName"
-									placeholder="Nhập họ"
-									value={contactInfo.lastName}
-									onChange={handleContactChange}
-									required
-								/>
-							</div>
-
-							<div style={{ flex: "1 1 45%" }}>
-								<label>Tên đệm và tên (không dấu) *</label>
+									type="text"
+									placeholder="Nguyễn Văn A"
+									className={inputClass("fullName")}
+									value={contactInfo.fullName}
+									onChange={(e) =>
+										setContactInfo({ ...contactInfo, fullName: e.target.value })
+									}
+								/>,
+								"fullName"
+							)}
+							{renderLabeledInput(
+								"Số điện thoại",
 								<input
-									name="firstName"
-									placeholder="Nhập tên đệm và tên"
-									value={contactInfo.firstName}
-									onChange={handleContactChange}
-									required
-								/>
-							</div>
-
-							<div style={{ flex: "1 1 45%" }}>
-								<label>Số điện thoại *</label>
-								<div style={{ display: "flex", gap: "8px" }}>
-									<select disabled style={{ width: "70px" }}>
-										<option value="+84">+84</option>
-									</select>
-									<input
-										name="phone"
-										placeholder="Nhập số điện thoại"
-										value={contactInfo.phone}
-										onChange={handleContactChange}
-										required
-										style={{ flex: 1 }}
-									/>
-								</div>
-							</div>
-
-							<div style={{ flex: "1 1 45%" }}>
-								<label>Email *</label>
+									type="tel"
+									placeholder="0123456789"
+									className={inputClass("phone")}
+									value={contactInfo.phone}
+									onChange={(e) =>
+										setContactInfo({ ...contactInfo, phone: e.target.value })
+									}
+								/>,
+								"phone"
+							)}
+							{renderLabeledInput(
+								"Email",
 								<input
-									name="email"
-									placeholder="Nhập email"
+									type="email"
+									placeholder="email@example.com"
+									className={inputClass("email")}
 									value={contactInfo.email}
-									onChange={handleContactChange}
-									required
-								/>
-							</div>
+									onChange={(e) =>
+										setContactInfo({ ...contactInfo, email: e.target.value })
+									}
+								/>,
+								"email"
+							)}
 						</div>
+					</div>
 
-						<div className="submit-section">
-							<p>
-								<strong>Tổng</strong>{" "}
-								<span style={{ color: "orange", fontWeight: 600 }}>
-									{(seatClass.price * passengers).toLocaleString("vi-VN")} đ
-								</span>
-							</p>
-							<button type="submit" className="submit-btn">
-								Tiếp tục
-							</button>
-						</div>
-					</form>
+					{/* Invoice Info (optional) */}
+					<div className="bg-white rounded shadow p-4">
+						<h3 className="font-bold mb-4">Thông tin xuất hóa đơn</h3>
+						<p className="text-gray-500">Tạm thời chưa hỗ trợ xuất hóa đơn</p>
+					</div>
 				</div>
 
-				{/* RIGHT SIDE */}
-				<div className="booking-right">
-					<div className="baggage-info">
-						<h4>Thông tin hành lý</h4>
-						<p>Hành khách ({passengers} người lớn)</p>
-						<ul>
-							<li>Hành lý ký gửi: {seatClass.baggage.checked}</li>
-							<li>Hành lý xách tay: {seatClass.baggage.hand}</li>
+				{/* RIGHT */}
+				<div className="w-full lg:w-1/3 mt-6 lg:mt-0">
+					<div className="bg-white rounded shadow p-4">
+						<h3 className="font-bold mb-4">Thông tin hành lý</h3>
+						<ul className="text-sm space-y-1">
+							<li>
+								Hành lý ký gửi: {seatClass?.baggage?.checked || "Không bao gồm"}
+							</li>
+							<li>
+								Hành lý xách tay: {seatClass?.baggage?.hand || "1 kiện 07 kg"}
+							</li>
 						</ul>
+					</div>
 
-						<h4>Tổng</h4>
-						<p>{(seatClass.price * passengers).toLocaleString("vi-VN")} đ</p>
+					<div className="bg-white rounded shadow p-4 mt-4">
+						<h3 className="font-bold mb-4">Chi tiết giá</h3>
+						<div className="text-sm mb-2">Vé máy bay</div>
+						<div className="flex justify-between text-sm">
+							<span>Hành khách (1 người lớn)</span>
+							<span>{totalAmount?.toLocaleString()} ₫</span>
+						</div>
+						<div className="flex justify-between text-sm text-gray-500">
+							<span>Giá vé</span>
+							<span>{(seatClass?.price || 0).toLocaleString()} ₫</span>
+						</div>
+						<div className="flex justify-between text-sm text-gray-500">
+							<span>Thuế và phí</span>
+							<span>{(totalAmount - seatClass?.price).toLocaleString()} ₫</span>
+						</div>
+						<div className="mt-3">
+							<label className="block text-sm font-medium text-gray-700 mb-1">
+								Mã giảm giá
+							</label>
+							<input
+								type="text"
+								placeholder="Nhập mã"
+								className={inputClass("voucher")}
+								value={voucher}
+								onChange={(e) => setVoucher(e.target.value)}
+							/>
+							<button className="ml-2 px-3 py-1 bg-gray-300 rounded text-sm">
+								Sử dụng
+							</button>
+						</div>
+						<div className="mt-4 flex justify-between font-bold text-lg">
+							<span>Tổng</span>
+							<span>{totalAmount.toLocaleString()} ₫</span>
+						</div>
+						<button
+							onClick={() => {
+								if (validate()) {
+									handleBooking();
+								}
+							}}
+							className="mt-4 w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 rounded">
+							Tiếp tục
+						</button>
 					</div>
 				</div>
 			</div>
-			{showSoldOut && (
-				<div className="overlay">
-					<div className="timeout-modal">
-						<div className="icon">❗</div>
-						<h2>Đã bán hết vé</h2>
-						<p>
-							Rất tiếc, vé của chuyến bay bạn chọn đã bán hết. Vui lòng chọn
-							chuyến khác.
-						</p>
-						<div className="actions">
-							<button className="btn-primary" onClick={handleReSearch}>
-								Chọn chuyến bay khác
-							</button>
-						</div>
-					</div>
-				</div>
-			)}
 		</div>
 	);
 };

@@ -54,7 +54,7 @@ export const searchFlights = async ({
 		const response = await axios.get(`${API_URL}/search`, {
 			params: { from, to, departureDate, passengers },
 		});
-		return response.data;
+		return response.data.data;
 	} catch (err) {
 		console.error("❌ Lỗi tìm kiếm chuyến bay:", err);
 		throw err;

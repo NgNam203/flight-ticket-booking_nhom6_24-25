@@ -98,13 +98,12 @@ const SearchPage = () => {
 	};
 
 	const handleBookFlight = (flight, seat) => {
+		const totalAmount = seat.price * passengers;
 		navigate("/booking", {
 			state: {
-				flightId: flight._id,
+				flight,
 				seatClass: seat,
-				passengers: parseInt(passengers),
-				departureDate: currentDate,
-				flightInfo: flight,
+				totalAmount,
 			},
 		});
 	};

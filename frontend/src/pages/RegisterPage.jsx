@@ -56,13 +56,36 @@ const RegisterPage = () => {
 		try {
 			setLoading(true);
 			const res = await registerUser({ ...formData, captchaToken });
+			console.log("✅ Đăng ký thành công:", res);
 			AlertPopup.success(res.message || "Đăng ký thành công!");
 			setFormData({ fullName: "", email: "", phone: "", password: "" });
 			setCaptchaToken("");
+			setErrors({});
 		} catch (err) {
-			const msg =
-				err.response?.data?.message || "Đăng ký thất bại. Vui lòng thử lại.";
-			AlertPopup.error(msg);
+			console.log("❌ Lỗi đăng ký:", err.response?.data || err);
+			const msg = err.response?.data?.message || "Đăng ký thất bại.";
+			const fieldErrors = err.response?.data?.errors;
+
+			let alertShown = false;
+
+			if (Array.isArray(fieldErrors) && fieldErrors.length > 0) {
+				const newErrors = {};
+				fieldErrors.forEach((e) => {
+					if (e.field) {
+						newErrors[e.field] = e.msg;
+					} else {
+						// Trường hợp không có field → show popup riêng từng lỗi
+						AlertPopup.error(e.msg || msg);
+						alertShown = true;
+					}
+				});
+				setErrors(newErrors);
+			}
+
+			if (!alertShown) {
+				AlertPopup.error(msg);
+			}
+
 			recaptchaRef.current?.reset();
 		} finally {
 			setLoading(false);

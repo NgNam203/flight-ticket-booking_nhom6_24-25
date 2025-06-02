@@ -4,7 +4,7 @@ const router = express.Router();
 const {
 	registerValidation,
 	loginValidation,
-} = require("../middlewares/validators/authValidator");
+} = require("../middlewares/validators/auth.validator");
 const validate = require("../middlewares/validators/validate");
 const verifyCaptcha = require("../middlewares/verifyCaptcha");
 const loginLimiter = require("../middlewares/loginLimiter");
@@ -19,7 +19,7 @@ const {
 router.post(
 	"/register",
 	registerLimiter,
-	// verifyCaptcha,
+	verifyCaptcha,
 	registerValidation,
 	validate,
 	register
@@ -30,7 +30,7 @@ router.get("/verify-email", verifyEmail);
 router.post(
 	"/login",
 	loginLimiter,
-	// verifyCaptcha,
+	verifyCaptcha,
 	loginValidation,
 	validate,
 	login

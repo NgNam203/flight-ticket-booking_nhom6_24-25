@@ -69,8 +69,8 @@ const SearchForm = ({ initialValues = {} }) => {
 		});
 	};
 
-	const handleSelectAirport = (airportId, isFrom = true) => {
-		setFormData((prev) => ({ ...prev, [isFrom ? "from" : "to"]: airportId }));
+	const handleSelectAirport = (airportCode, isFrom = true) => {
+		setFormData((prev) => ({ ...prev, [isFrom ? "from" : "to"]: airportCode }));
 		setShowFromDropdown(false);
 		setShowToDropdown(false);
 	};
@@ -89,8 +89,8 @@ const SearchForm = ({ initialValues = {} }) => {
 		navigate(`/search?${query}`, { replace: true });
 	};
 
-	const getAirportLabel = (id) => {
-		const ap = airports.find((a) => a._id === id);
+	const getAirportLabel = (code) => {
+		const ap = airports.find((a) => a.code === code);
 		return ap ? `${ap.city}, ${ap.country} (${ap.code})` : "";
 	};
 
@@ -127,7 +127,7 @@ const SearchForm = ({ initialValues = {} }) => {
 						return (
 							<button
 								key={city}
-								onClick={() => handleSelectAirport(airport._id, isFrom)}
+								onClick={() => handleSelectAirport(airport.code, isFrom)}
 								className="text-left text-sm hover:bg-blue-100 rounded p-2">
 								{city} ({airport.code})
 							</button>

@@ -13,10 +13,15 @@ export const getAllBookings = async (token) => {
 
 // 2. Tạo đơn đặt vé
 export const createBooking = async (data, token) => {
-	const res = await axios.post(API_URL, data, {
-		headers: { Authorization: `Bearer ${token}` },
-	});
-	return res.data;
+	try {
+		const res = await axios.post(API_URL, data, {
+			headers: { Authorization: `Bearer ${token}` },
+		});
+		return res.data;
+	} catch (err) {
+		console.error("createBooking error:", err.response?.data || err.message);
+		throw err;
+	}
 };
 
 // 3. Cập nhật thanh toán
