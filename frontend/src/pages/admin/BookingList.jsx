@@ -10,7 +10,7 @@ const BookingList = () => {
 			try {
 				const token = localStorage.getItem("token");
 				const data = await getAllBookings(token);
-				setBookings(data);
+				setBookings(data.data);
 			} catch (error) {
 				console.error("Lỗi khi tải danh sách đặt vé:", error);
 			}

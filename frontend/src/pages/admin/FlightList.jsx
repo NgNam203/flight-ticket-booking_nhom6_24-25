@@ -40,7 +40,7 @@ const FlightList = () => {
 	const fetchFlights = async () => {
 		try {
 			const data = await getAllFlights(token);
-			setFlights(data);
+			setFlights(data?.data || []);
 		} catch (error) {
 			console.error("Lỗi khi tải chuyến bay:", error);
 		} finally {
@@ -191,7 +191,7 @@ const FlightList = () => {
 					onChange={handleChange}
 					required>
 					<option value="">-- Chọn hãng bay --</option>
-					{airlines.map((a) => (
+					{(Array.isArray(airlines) ? airlines : []).map((a) => (
 						<option key={a._id} value={a._id}>
 							{a.name} ({a.code})
 						</option>
@@ -308,43 +308,49 @@ const FlightList = () => {
 						</tr>
 					</thead>
 					<tbody>
-						{flights.map((f) => (
-							<tr key={f._id}>
-								<td>{f.flightCode}</td>
-								<td>{f.airline?.name}</td>
-								<td>{f.from?.name}</td>
-								<td>{f.to?.name}</td>
-								<td>
-									{new Date(f.departureTime).toLocaleString("vi-VN", {
-										hour: "2-digit",
-										minute: "2-digit",
-										day: "2-digit",
-										month: "2-digit",
-										year: "numeric",
-										hour12: false,
-									})}
-								</td>
-								<td>
-									{new Date(f.arrivalTime).toLocaleString("vi-VN", {
-										hour: "2-digit",
-										minute: "2-digit",
-										day: "2-digit",
-										month: "2-digit",
-										year: "numeric",
-										hour12: false,
-									})}
-								</td>
-								<td>{f.status}</td>
-								<td>
-									<button onClick={() => handleEdit(f)}>Sửa</button>
-									<button
-										onClick={() => handleDelete(f._id)}
-										style={{ marginLeft: 5 }}>
-										Xóa
-									</button>
-								</td>
+						{Array.isArray(flights) ? (
+							flights.map((f) => (
+								<tr key={f._id}>
+									<td>{f.flightCode}</td>
+									<td>{f.airline?.name}</td>
+									<td>{f.from?.name}</td>
+									<td>{f.to?.name}</td>
+									<td>
+										{new Date(f.departureTime).toLocaleString("vi-VN", {
+											hour: "2-digit",
+											minute: "2-digit",
+											day: "2-digit",
+											month: "2-digit",
+											year: "numeric",
+											hour12: false,
+										})}
+									</td>
+									<td>
+										{new Date(f.arrivalTime).toLocaleString("vi-VN", {
+											hour: "2-digit",
+											minute: "2-digit",
+											day: "2-digit",
+											month: "2-digit",
+											year: "numeric",
+											hour12: false,
+										})}
+									</td>
+									<td>{f.status}</td>
+									<td>
+										<button onClick={() => handleEdit(f)}>Sửa</button>
+										<button
+											onClick={() => handleDelete(f._id)}
+											style={{ marginLeft: 5 }}>
+											Xóa
+										</button>
+									</td>
+								</tr>
+							))
+						) : (
+							<tr>
+								<td colSpan="8">Không có chuyến bay</td>
 							</tr>
-						))}
+						)}
 					</tbody>
 				</table>
 			)}

@@ -9,6 +9,7 @@ const helmet = require("helmet");
 const dotenv = require("dotenv");
 const routes = require("./routes/index"); // Import toàn bộ routes từ folder routes
 const errorHandler = require("./middlewares/errorHandler");
+const path = require("path");
 const app = express();
 
 const globalLimiter = rateLimit({
@@ -23,7 +24,33 @@ dotenv.config();
 app.use(express.json()); // Parse JSON
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded
 app.use(cors()); // Cho phép CORS
-app.use(helmet()); // Bảo mật HTTP headers
+app.use(
+	helmet({
+		contentSecurityPolicy: {
+			directives: {
+				defaultSrc: ["'self'"],
+				scriptSrc: [
+					"'self'",
+					"https://www.google.com",
+					"https://www.gstatic.com",
+				],
+				imgSrc: [
+					"'self'",
+					"data:",
+					"https:",
+					"https://news.vemaybay.vn",
+					"https://at-assests.flightticket.vn",
+				],
+				frameSrc: ["'self'", "https://www.google.com"],
+				connectSrc: [
+					"'self'",
+					"https://www.google.com",
+					"https://www.gstatic.com",
+				],
+			},
+		},
+	})
+); // Bảo mật HTTP headers
 app.use(morgan("dev")); // Log request
 app.use(globalLimiter); // Giới hạn request chung
 app.use(mongoSanitize()); // Chống NoSQL injection
@@ -32,9 +59,10 @@ app.use(xss()); // Chống XSS
 // Routes
 app.use("/api", routes); // Gắn tất cả route với tiền tố /api
 
-// 404 handler
-app.use((req, res, next) => {
-	res.status(404).json({ message: "Route not found" });
+// Serve frontend build
+app.use(express.static(path.join(__dirname, "../public")));
+app.get("*", (req, res) => {
+	res.sendFile(path.join(__dirname, "../public/index.html"));
 });
 
 // Error handler

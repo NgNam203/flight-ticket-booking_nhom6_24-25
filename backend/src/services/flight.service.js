@@ -1,4 +1,3 @@
-// services/flightService.js
 const Flight = require("../models/Flight");
 const Booking = require("../models/Booking");
 const Airport = require("../models/Airport");
