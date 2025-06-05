@@ -68,21 +68,6 @@ The frontend React app is statically served from the backend at the same port (`
 
 ---
 
-## 📁 Folder Structure
-
-```
-├── backend/
-│   ├── src/
-│   ├── Dockerfile
-├── frontend/
-│   ├── src/
-│   ├── Dockerfile
-├── Dockerfile              # Root: Multi-stage for both FE + BE
-└── README.md
-```
-
----
-
 ## 🌐 Live Demo
 
 > Will be deployed on [Render](https://render.com/) > _URL coming soon..._
