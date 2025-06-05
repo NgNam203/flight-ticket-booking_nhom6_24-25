@@ -1,114 +1,96 @@
-# **Hệ Thống Đặt Vé Máy Bay**
+````markdown
+# ✈️ Flight Ticket Booking Website
 
-[Mẫu giao diện tham khảo](https://vemaybay.vn/vi)
+A full-stack flight ticket booking system with admin and user functionality. This project is designed to demonstrate end-to-end modern web development, secure authentication, and deployment using Docker and Render.
 
-## **Cấu Trúc Dự Án**
+## 🔧 Tech Stack
 
-Dự án được chia thành hai phần chính: `backend` (Express.js) và `frontend` (React.js). Dưới đây là cấu trúc thư mục đề xuất.
+### Frontend
+
+- React (create-react-app)
+- TailwindCSS
+- Axios
+- Google reCAPTCHA v2
+
+### Backend
+
+- Node.js + Express
+- MongoDB Atlas
+- JWT Authentication
+- Helmet, XSS-Clean, Express-Rate-Limit
+- Express Validator
+
+### DevOps & Deployment
+
+- Docker (multi-stage build)
+- Render (Docker-based deployment)
+- `.env` configuration for multiple environments
+
+---
+
+## 👨‍💼 User Features
+
+- 🔐 Register and login with Google reCAPTCHA v2
+- ✈️ Search flights by date, route, passengers
+- 📃 View personal booking history
+- 🧾 Book flights with dynamic seat class options
+- 🔐 Secure routes with JWT-based auth
+
+---
+
+## 🛠️ Admin Features
+
+- ✈️ Manage all flights (Create, Edit, Delete)
+- 🧳 Define and manage seat classes per flight
+- 🏢 Manage airlines (with logo URLs)
+- 🛬 Manage airports (name, code, location)
+- 👥 View and manage users and bookings
+- 📊 Admin dashboard interface
+
+---
+
+## 🐳 Docker Usage
+
+### 🏗️ Build image:
+
+```bash
+docker build -t flight-app .
+```
+````
+
+### 🚀 Run container:
+
+```bash
+docker run -p 8080:3001 flight-app
+```
+
+The frontend React app is statically served from the backend at the same port (`8080`).
+
+---
+
+## 📁 Folder Structure
 
 ```
-/project-root
-│── /backend        # Thư mục backend (Node.js + Express.js)
-│   ├── /src
-│   │   ├── /config      # Cấu hình ứng dụng (DB, ENV, Middleware)
-│   │   ├── /controllers # Xử lý logic API
-│   │   ├── /models      # Mô hình dữ liệu (MongoDB hoặc MySQL)
-│   │   ├── /routes      # Định tuyến API (Express Router)
-│   │   ├── /services    # Các chức năng và xử lý nghiệp vụ chung
-│   │   ├── /middlewares # Middleware bảo mật, xác thực
-│   │   ├── /utils       # Các hàm tiện ích (định dạng dữ liệu, xác thực)
-│   │   ├── /tests       # Unit tests cho API
-│   │   ├── app.js       # Cấu hình ứng dụng Express
-│   │   ├── server.js    # File khởi chạy server
-│   ├── package.json     # Cấu hình Node.js
-│   ├── .env             # Biến môi trường (DB, API Key)
-│   ├── README.md        # Hướng dẫn backend
-│
-│── /frontend        # Thư mục frontend (React.js)
-│   ├── /src
-│   │   ├── /components   # Các component giao diện
-│   │   ├── /pages        # Các trang chính của ứng dụng
-│   │   ├── /assets       # Hình ảnh, icon, file CSS
-│   │   ├── /services     # Gửi request API từ frontend đến backend
-│   │   ├── /context      # Quản lý state toàn cục (React Context)
-│   │   ├── /hooks        # Custom hooks nếu cần
-│   │   ├── /routes       # Định tuyến frontend (React Router)
-│   │   ├── App.js        # File chính của ứng dụng React
-│   │   ├── index.js      # Điểm khởi chạy ứng dụng
-│   ├── package.json      # Cấu hình React.js
-│   ├── .env              # Biến môi trường frontend
-│   ├── README.md         # Hướng dẫn frontend
-│
-│── /docs           # Thư mục chứa tài liệu hướng dẫn
-│── .gitignore      # File để loại trừ các file không cần thiết khi push lên Git
-│── README.md       # Tổng quan về dự án
+├── backend/
+│   ├── src/
+│   ├── Dockerfile
+├── frontend/
+│   ├── src/
+│   ├── Dockerfile
+├── Dockerfile              # Root: Multi-stage for both FE + BE
+└── README.md
 ```
 
 ---
 
-## **Cấu Trúc Thư Mục Backend (Express.js)**
+## 🌐 Live Demo
 
-| **Thư mục**    | **Chức năng**                                                      |
-| -------------- | ------------------------------------------------------------------ |
-| `/config`      | Chứa file cấu hình môi trường, kết nối database                    |
-| `/controllers` | Xử lý logic API và nghiệp vụ hệ thống                              |
-| `/models`      | Định nghĩa Schema (MongoDB) hoặc Model (MySQL)                     |
-| `/routes`      | Chứa tất cả các endpoint API sử dụng Express Router                |
-| `/services`    | Chứa các chức năng logic tái sử dụng (email, thanh toán, xác thực) |
-| `/middlewares` | Middleware xử lý xác thực, bảo mật, logging                        |
-| `/utils`       | Các hàm tiện ích (định dạng dữ liệu, kiểm tra đầu vào)             |
-| `/tests`       | Chứa các bài kiểm thử API (Jest hoặc Mocha)                        |
-| `app.js`       | Cấu hình ứng dụng Express.js                                       |
-| `server.js`    | Điểm khởi chạy chính của server backend                            |
+> Will be deployed on [Render](https://render.com/) > _URL coming soon..._
 
 ---
 
-## **Cấu Trúc Thư Mục Frontend (React.js)**
+## 🙋 About the Developer
 
-| **Thư mục**   | **Chức năng**                                                |
-| ------------- | ------------------------------------------------------------ |
-| `/components` | Các thành phần UI có thể tái sử dụng (nút bấm, form, modal)  |
-| `/pages`      | Các trang chính của ứng dụng (Trang chủ, Đặt vé, Thanh toán) |
-| `/assets`     | Lưu hình ảnh, icon và CSS toàn cục                           |
-| `/services`   | Gửi request API bằng Axios                                   |
-| `/context`    | Quản lý state toàn cục bằng React Context API                |
-| `/hooks`      | Chứa custom hooks nếu cần                                    |
-| `/routes`     | Định tuyến ứng dụng bằng React Router                        |
-| `App.js`      | Component chính của ứng dụng React                           |
-| `index.js`    | Điểm khởi chạy của ứng dụng React                            |
+This project was created by **Nguyen Hai Nam** as part of a final course project and portfolio to demonstrate full-stack development capabilities.
 
----
-
-## **Hướng Dẫn Cài Đặt Và Chạy Dự Án**
-
-### **1️⃣ Cài Đặt Các Thư Viện Cần Thiết**
-
-Chạy lệnh sau trong cả thư mục `backend` và `frontend`:
-
-```sh
-npm install
-```
-
-### **2️⃣ Khởi Chạy Backend**
-
-Di chuyển vào thư mục `backend` và chạy lệnh:
-
-```sh
-npm start
-```
-
-Điều này sẽ khởi động server Express.js.
-
-### **3️⃣ Khởi Chạy Frontend**
-
-Di chuyển vào thư mục `frontend` và chạy lệnh:
-
-```sh
-npm start
-```
-
-Điều này sẽ khởi động ứng dụng React.js.
-
----
-
-
+Feel free to explore, fork, or contact for collaboration.
