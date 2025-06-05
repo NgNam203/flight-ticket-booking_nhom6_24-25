@@ -1,11 +1,11 @@
 // /src/services/userService.js
 import axios from "axios";
 
-const API_URL = `${process.env.REACT_APP_API_URL}/api/user`;
+const API_URL = `${process.env.REACT_APP_API_URL}/api/profile`;
 
 // Lấy thông tin cá nhân
 export const getProfile = async (token) => {
-	const res = await axios.get(`${API_URL}/profile`, {
+	const res = await axios.get(`${API_URL}`, {
 		headers: {
 			Authorization: `Bearer ${token}`,
 		},
@@ -15,7 +15,7 @@ export const getProfile = async (token) => {
 
 // Cập nhật thông tin cá nhân
 export const updateProfile = async (data, token) => {
-	const res = await axios.put(`${API_URL}/profile`, data, {
+	const res = await axios.put(`${API_URL}`, data, {
 		headers: {
 			Authorization: `Bearer ${token}`,
 		},

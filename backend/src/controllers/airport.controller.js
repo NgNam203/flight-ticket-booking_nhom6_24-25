@@ -1,4 +1,4 @@
-const airportService = require("../services/airportService");
+const airportService = require("../services/airport.service");
 
 const getAllAirports = async (req, res) => {
 	try {

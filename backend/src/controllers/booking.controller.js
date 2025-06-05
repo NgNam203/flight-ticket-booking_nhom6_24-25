@@ -1,5 +1,5 @@
-const bookingService = require("../services/bookingService");
-const { sendBookingConfirmationEmail } = require("../services/emailService");
+const bookingService = require("../services/booking.service");
+const { sendBookingConfirmationEmail } = require("../services/email.service");
 const { successResponse, errorResponse } = require("../utils/response");
 
 const getAllBookings = async (req, res) => {
@@ -98,9 +98,21 @@ const getBookingById = async (req, res) => {
 	}
 };
 
+const getMyBookings = async (req, res) => {
+	try {
+		console.log("req.user in getMyBookings:", req.user);
+		const bookings = await bookingService.getBookingsByUser(req.user.id);
+		return successResponse(res, "Lấy đơn đặt vé của bạn thành công", bookings);
+	} catch (err) {
+		console.error("getMyBookings error:", err);
+		return errorResponse(res, 500, "Lỗi khi lấy đơn đặt vé.");
+	}
+};
+
 module.exports = {
 	getAllBookings,
 	createBooking,
 	payBooking,
 	getBookingById,
+	getMyBookings,
 };

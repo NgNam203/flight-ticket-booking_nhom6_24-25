@@ -1,4 +1,4 @@
-const airlineService = require("../services/airlineService");
+const airlineService = require("../services/airline.service");
 
 const getAllAirlines = async (req, res) => {
 	try {

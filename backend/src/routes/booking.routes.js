@@ -19,6 +19,8 @@ router.post(
 	validate,
 	bookingController.createBooking
 );
+router.get("/me", verifyToken, bookingController.getMyBookings);
 router.put("/:id", bookingController.payBooking);
 router.get("/:id", bookingController.getBookingById);
+
 module.exports = router;

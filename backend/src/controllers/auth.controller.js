@@ -4,8 +4,8 @@ const {
 	registerUser,
 	verifyUserEmail,
 	loginUser,
-} = require("../services/authService");
-const { sendVerificationEmail } = require("../services/emailService");
+} = require("../services/auth.service");
+const { sendVerificationEmail } = require("../services/email.service");
 const { successResponse, errorResponse } = require("../utils/response");
 
 const register = async (req, res) => {

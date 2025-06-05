@@ -1,4 +1,4 @@
-const flightService = require("../services/flightService");
+const flightService = require("../services/flight.service");
 const { successResponse, errorResponse } = require("../utils/response");
 
 const getAllFlights = async (req, res) => {

@@ -43,3 +43,12 @@ export const getBookingById = async (bookingId, token) => {
 	});
 	return res.data;
 };
+
+export const getUserBookings = async (token) => {
+	const res = await axios.get(`${API_URL}/me`, {
+		headers: {
+			Authorization: `Bearer ${token}`,
+		},
+	});
+	return res.data.data;
+};

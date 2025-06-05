@@ -146,9 +146,24 @@ const payBooking = async ({ bookingId, paymentMethod }) => {
 	return booking;
 };
 
+const getBookingsByUser = async (userId) => {
+	return Booking.find({ user: userId })
+		.populate({
+			path: "flights.flight",
+			select: "flightCode from to departureTime arrivalTime airline",
+			populate: [
+				{ path: "airline", select: "name logo" },
+				{ path: "from", select: "name city code" },
+				{ path: "to", select: "name city code" },
+			],
+		})
+		.sort({ createdAt: -1 });
+};
+
 module.exports = {
 	createBooking,
 	getAllBookings,
 	getBookingById,
 	payBooking,
+	getBookingsByUser,
 };
