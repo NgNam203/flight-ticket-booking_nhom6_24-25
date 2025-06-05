@@ -1,8 +1,8 @@
 // /frontend/src/services/authService.js
 import axios from "axios";
 
-const API_URL = `/api/auth`;
-console.log("API_URL = ", API_URL);
+const API_URL = `${process.env.REACT_APP_API_URL}/auth`;
+
 export const registerUser = async (data) => {
 	const res = await axios.post(`${API_URL}/register`, data);
 	return res.data;

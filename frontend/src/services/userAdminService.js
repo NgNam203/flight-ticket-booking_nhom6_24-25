@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = `/api/user`;
+const API_URL = `${process.env.REACT_APP_API_URL}/user`;
 
 // Lấy danh sách tất cả người dùng
 export const getAllUsers = async (token) => {
