@@ -2,7 +2,6 @@
 FROM node:18 AS frontend
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
-COPY frontend/.env.production .env
 RUN npm install
 COPY frontend/ .
 RUN npm run build
